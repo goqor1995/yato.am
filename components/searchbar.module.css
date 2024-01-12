@@ -1,0 +1,50 @@
+/* SearchBar.module.css */
+
+.searchBarContainer {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.searchInputContainer {
+  position: relative;
+  display: flex;
+  gap: 10px;
+}
+
+.searchInput {
+  display: flex;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.dropdownList {
+  /* padding: 10px; */
+  margin-top: 50px;
+  position: absolute;
+  width: 70%;
+  border-radius: 8px;
+  background-color: #fff; 
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: auto;
+  max-height: 400px;
+  z-index: 1;
+  overflow-y: scroll;
+}
+
+.dropdownItem {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.searchButton {
+  display: flex;
+  font-size: 16px;
+  padding: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
