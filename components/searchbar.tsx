@@ -1,6 +1,7 @@
-import React, { useState, ChangeEvent } from "react";
-import styles from "./searchbar.module.css";
-
+import React, { useState, ChangeEvent, Key } from 'react';
+import { Input } from '@nextui-org/react';
+import { Autocomplete, AutocompleteSection, AutocompleteItem } from '@nextui-org/react';
+import { SearchIcon } from '../components/icons/SearchIcon';
 interface Item {
   Name: string;
   SKU: string;
@@ -8,66 +9,26 @@ interface Item {
 
 interface SearchBarProps {
   items: Item[];
+  handleSearch: (key: Key) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ items }) => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
-  const [showResults, setShowResults] = useState<boolean>(false);
-
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    const filtered = items.filter((item) =>
-      item.SKU.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredItems(filtered);
-    setShowResults(true);
-  };
-
-  const handleSearch = () => {
-    console.log("Search query:", searchQuery);
-    console.log("Filtered items:", filteredItems);
-    // Implement further actions as needed
-  };
-
-  const handleItemClick = (SKU: string) => {
-    setSearchQuery(SKU);
-    setShowResults(false);
-    // Implement further actions as needed
-  };
-
+const SearchBar: React.FC<SearchBarProps> = ({ items, handleSearch }) => {
   return (
-    <div className={styles.searchBarContainer}>
-      <div className={styles.searchInputContainer}>
-        <input
-          className={styles.searchInput}
-          type="text"
-          placeholder="Enter SKU to search"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-        <button className={styles.searchButton} onClick={handleSearch}>
-          Search
-        </button>
-        {showResults && (
-          <ul className={styles.dropdownList}>
-            {filteredItems.map((item, index) => (
-              <li
-                key={index}
-                className={styles.dropdownItem}
-                onClick={() => handleItemClick(item.SKU)}
-              >
-                Name: {item.Name} {"\n"}
-                SKU: {item.SKU}
-                <br />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+    <Autocomplete
+      required
+      isRequired
+      isClearable={false}
+      variant="bordered"
+      label="Search in All Products"
+      placeholder="Type SKU to search..."
+      defaultItems={items}
+      onKeyDown={(e) => e.continuePropagation()}
+      onSelectionChange={handleSearch}
+      startContent={
+        <SearchIcon className="text-black/50 mb-0.5 dark:text-white/90 text-slate-400 pointer-events-none flex-shrink-0" />
+      }>
+      {(item) => <AutocompleteItem key={item.SKU}>{`${item.SKU} - ${item.Name}`}</AutocompleteItem>}
+    </Autocomplete>
   );
 };
 

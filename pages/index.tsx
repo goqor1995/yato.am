@@ -1,257 +1,199 @@
-import Head from 'next/head'
-import clientPromise from '../lib/mongodb'
-import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import moment from 'moment';
+import DataTable from 'react-data-table-component';
+import Head from 'next/head';
+import clientPromise from '../lib/mongodb';
+import Modal from '../components/modal';
+import { Button, Input } from '@nextui-org/react';
+import { SearchIcon } from '../components/icons/SearchIcon';
+import { DeleteIcon } from '../components/icons/DeleteIcon';
 
-type ConnectionStatus = {
-  isConnected: boolean
-}
+export default function Products({ products, warranties }) {
+  const [items, setItems] = useState(warranties);
 
-export const getServerSideProps: GetServerSideProps<
-  ConnectionStatus
-> = async () => {
-  try {
-    await clientPromise
-    // `await clientPromise` will use the default database passed in the MONGODB_URI
-    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
-    //
-    // `const client = await clientPromise`
-    // `const db = client.db("myDatabase")`
-    //
-    // Then you can execute queries against your database like so:
-    // db.find({}) or any of the MongoDB Node Driver commands
+  // Next.js has a bug where it tries to render the component before the window object is available.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-    return {
-      props: { isConnected: true },
+  if (!mounted) return <></>;
+  // End of bug fix
+
+  const router = useRouter();
+  // Call this function whenever you want to
+  // refresh props!
+  const refreshData = () => {
+    router.reload();
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch('/api/warranties', {
+        method: 'DELETE',
+        body: JSON.stringify({
+          _id: id,
+        }),
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+        },
+      });
+      refreshData();
+    } catch (error) {
+      console.error(error);
     }
-  } catch (e) {
-    console.error(e)
-    return {
-      props: { isConnected: false },
-    }
-  }
-}
+  };
 
-export default function Home({
-  isConnected,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const columns = [
+    {
+      name: 'Product Name',
+      selector: (row) => row.Name,
+      // sortable: true,
+      width: '40%',
+    },
+    {
+      name: 'SKU',
+      selector: (row) => row.SKU,
+    },
+    {
+      name: 'Phone number',
+      selector: (row) => row.phone,
+      sortable: true,
+    },
+    {
+      name: 'Expiry Date',
+      selector: (row) => moment(new Date(Number(row.expiryDate))).format('DD/MM/YYYY HH:mm:ss'),
+      sortable: true,
+    },
+    {
+      name: 'Status',
+      selector: (row) =>
+        row.expiryDate < Date.now()
+          ? 'Expired'
+          : row.expiryDate - Date.now() < 2629746000
+          ? 'Exipres in 1 month'
+          : 'Active',
+      sortable: true,
+    },
+    {
+      name: 'Actions',
+      selector: (row) => (
+        <Button
+          size="sm"
+          isIconOnly
+          variant="light"
+          radius="none"
+          onPress={() => handleDelete(row._id)}
+          startContent={<DeleteIcon className="text-red/50" />}></Button>
+      ),
+    },
+  ];
+
+  const paginationComponentOptions = {
+    rowsPerPageText: 'Rows per page',
+    rangeSeparatorText: 'of',
+    selectAllRowsItem: true,
+  };
+
+  const handleSearch = (e) => {
+    const filteredItems = warranties.filter((row) => {
+      return row.phone.includes(e.target.value);
+    });
+    setItems(filteredItems);
+  };
+
+  const conditionalRowStyles = [
+    {
+      when: (row) => row.expiryDate < Date.now(),
+      style: {
+        backgroundColor: 'rgb(210 35 19 / 90%)',
+        color: 'white',
+        '&:hover': {
+          cursor: 'not-allowed',
+        },
+      },
+    },
+    {
+      when: (row) => row.expiryDate > Date.now(),
+      style: {
+        backgroundColor: 'rgb(12 155 82 / 90%)',
+        color: 'white',
+        '&:hover': {
+          cursor: 'cursor',
+        },
+      },
+    },
+    {
+      when: (row) => row.expiryDate - Date.now() > 0 && row.expiryDate - Date.now() < 2629746000,
+      style: {
+        backgroundColor: 'rgb(236 139 0 / 90%)',
+        color: 'white',
+        '&:hover': {
+          cursor: 'cursor',
+        },
+      },
+    },
+  ];
+
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>Yato.am - Warranties</title>
+        {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
-
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js with MongoDB!</a>
-        </h1>
-
-        {isConnected ? (
-          <h2 className="subtitle">You are connected to MongoDB</h2>
-        ) : (
-          <h2 className="subtitle">
-            You are NOT connected to MongoDB. Check the <code>README.md</code>{' '}
-            for instructions.
-          </h2>
-        )}
-
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+      <div className="">
+        {/* <h3>Warranties</h3> */}
+        <div className="flex justify-between items-center gap-3 mt-6 mb-5">
+          <div className="self-start w-[250px]">
+            <Input
+              size="sm"
+              onChange={handleSearch}
+              placeholder="Type phone number to search..."
+              startContent={
+                <SearchIcon className="text-black/50 mb-0.5 dark:text-white/90 text-slate-400 pointer-events-none flex-shrink-0" />
+              }
+            />
+          </div>
+          <div className="self-end">
+            <Modal products={products} refreshData={refreshData} />
+          </div>
         </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .subtitle {
-          font-size: 2rem;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
+        <DataTable
+          columns={columns}
+          data={items}
+          pagination
+          responsive
+          fixedHeader
+          striped
+          highlightOnHover
+          pointerOnHover
+          conditionalRowStyles={conditionalRowStyles}
+          paginationComponentOptions={paginationComponentOptions}></DataTable>
+      </div>
     </div>
-  )
+  );
+}
+
+export async function getServerSideProps() {
+  try {
+    const client = await clientPromise;
+    const db = client.db('yatoam');
+
+    const products = await db.collection('products').find({}).limit(5000).toArray();
+    const warranties = await db.collection('warranties').find({}).limit(5000).toArray();
+
+    return {
+      props: {
+        products: JSON.parse(JSON.stringify(products)),
+        warranties: JSON.parse(JSON.stringify(warranties)),
+      },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: { products: [], warranties: [] }, // Return an empty array or handle the error accordingly
+    };
+  }
 }
