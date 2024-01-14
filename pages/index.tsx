@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import moment from 'moment';
+import { useRouter } from 'next/router';
+import { Input } from '@nextui-org/react';
 import DataTable from 'react-data-table-component';
 import Head from 'next/head';
 import clientPromise from '../lib/mongodb';
 import Modal from '../components/modal';
-import { Button, Input } from '@nextui-org/react';
+import DeletePopover from '../components/DeletePopover';
 import { SearchIcon } from '../components/icons/SearchIcon';
-import { DeleteIcon } from '../components/icons/DeleteIcon';
 
 export default function Products({ products, warranties }) {
   const [items, setItems] = useState(warranties);
@@ -79,15 +79,7 @@ export default function Products({ products, warranties }) {
     },
     {
       name: 'Actions',
-      selector: (row) => (
-        <Button
-          size="sm"
-          isIconOnly
-          variant="light"
-          radius="none"
-          onPress={() => handleDelete(row._id)}
-          startContent={<DeleteIcon className="text-red/50" />}></Button>
-      ),
+      selector: (row) => <DeletePopover _id={row._id} handleDelete={handleDelete} />,
     },
   ];
 
