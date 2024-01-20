@@ -73,7 +73,7 @@ export default function AddWarantyModal({ products, refreshData }) {
                 <ModalHeader className="flex flex-col gap-1">Add Warranty</ModalHeader>
                 <ModalBody>
                   <SearchBar items={products} handleSearch={handleSearch} />
-                  <Input
+                  {/* <Input
                     required
                     isRequired
                     isReadOnly
@@ -81,7 +81,7 @@ export default function AddWarantyModal({ products, refreshData }) {
                     placeholder="Product Name"
                     variant="bordered"
                     value={name}
-                  />
+                  /> */}
                   <Input
                     required
                     isRequired

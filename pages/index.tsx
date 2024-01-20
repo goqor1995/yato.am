@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import { Input } from '@nextui-org/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { Button, Input } from '@nextui-org/react';
 import DataTable from 'react-data-table-component';
 import Head from 'next/head';
 import clientPromise from '../lib/mongodb';
@@ -9,7 +10,8 @@ import Modal from '../components/modal';
 import DeletePopover from '../components/DeletePopover';
 import { SearchIcon } from '../components/icons/SearchIcon';
 
-export default function Products({ products, warranties }) {
+const Warranties = ({ products, warranties }) => {
+  const { data: session } = useSession();
   const [items, setItems] = useState(warranties);
 
   // Next.js has a bug where it tries to render the component before the window object is available.
@@ -25,7 +27,7 @@ export default function Products({ products, warranties }) {
   // Call this function whenever you want to
   // refresh props!
   const refreshData = () => {
-    router.reload();
+    // router.reload();
   };
 
   const handleDelete = async (id) => {
@@ -136,7 +138,11 @@ export default function Products({ products, warranties }) {
         {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
       <div className="">
-        {/* <h3>Warranties</h3> */}
+        <>
+          Signed in as {session.user?.name}
+          <br />
+          <Button onPress={() => signOut()}>Sign out</Button>
+        </>
         <div className="flex justify-between items-center gap-3 mt-6 mb-5">
           <div className="self-start w-[250px]">
             <Input
@@ -166,7 +172,10 @@ export default function Products({ products, warranties }) {
       </div>
     </div>
   );
-}
+};
+
+Warranties.auth = {};
+export default Warranties;
 
 export async function getServerSideProps() {
   try {
