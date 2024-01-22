@@ -55,7 +55,6 @@
 //   }
 // };
 
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import { hash } from 'bcrypt';
 import clientPromise from '../../lib/mongodb';
@@ -78,13 +77,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const { name, username, password } = req.body;
 
-        if ( !name || !username || !password) {
+        if (!name || !username || !password) {
           return res.status(400).json({ error: 'Missing required fields.' });
         }
 
-        await db.collection('users').createIndex({ 'username': 1 }, { unique: true });
+        await db.collection('users').createIndex({ username: 1 }, { unique: true });
 
-        const hashedPassword = await hash(password, 10); 
+        const hashedPassword = await hash(password, 10);
 
         const result = await db.collection('users').insertOne({
           name,
@@ -92,9 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           hashedPassword,
         });
 
-        const user = result.ops[0];
-
-        return res.status(201).json(user);
+        return res.status(201).json(result);
       } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
@@ -116,4 +113,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       break;
   }
 }
-
