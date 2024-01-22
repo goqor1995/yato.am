@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import moment from 'moment';
-import { useRouter } from 'next/router';
-import { Input } from '@nextui-org/react';
-import DataTable from 'react-data-table-component';
-import Head from 'next/head';
-import clientPromise from '../lib/mongodb';
-import Modal from '../components/modal';
-import DeletePopover from '../components/DeletePopover';
-import { SearchIcon } from '../components/icons/SearchIcon';
+import React, { useEffect, useState } from "react";
+import moment from "moment";
+import { useRouter } from "next/router";
+import { Input } from "@nextui-org/react";
+import DataTable from "react-data-table-component";
+import Head from "next/head";
+import clientPromise from "../lib/mongodb";
+import Modal from "../components/modal";
+import SearchBar from "../components/searchbar";
+import AddUserModal from "../components/registerModal";
+import DeletePopover from "../components/DeletePopover";
+import { SearchIcon } from "../components/icons/SearchIcon";
 
 export default function Products({ products, warranties }) {
   const [items, setItems] = useState(warranties);
@@ -30,14 +32,14 @@ export default function Products({ products, warranties }) {
 
   const handleDelete = async (id) => {
     try {
-      await fetch('/api/warranties', {
-        method: 'DELETE',
+      await fetch("/api/warranties", {
+        method: "DELETE",
         body: JSON.stringify({
           _id: id,
         }),
         headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
       });
       refreshData();
@@ -48,44 +50,47 @@ export default function Products({ products, warranties }) {
 
   const columns = [
     {
-      name: 'Product Name',
+      name: "Product Name",
       selector: (row) => row.Name,
       // sortable: true,
-      width: '40%',
+      width: "40%",
     },
     {
-      name: 'SKU',
+      name: "SKU",
       selector: (row) => row.SKU,
     },
     {
-      name: 'Phone number',
+      name: "Phone number",
       selector: (row) => row.phone,
       sortable: true,
     },
     {
-      name: 'Expiry Date',
-      selector: (row) => moment(new Date(Number(row.expiryDate))).format('DD/MM/YYYY HH:mm:ss'),
+      name: "Expiry Date",
+      selector: (row) =>
+        moment(new Date(Number(row.expiryDate))).format("DD/MM/YYYY HH:mm:ss"),
       sortable: true,
     },
     {
-      name: 'Status',
+      name: "Status",
       selector: (row) =>
         row.expiryDate < Date.now()
-          ? 'Expired'
+          ? "Expired"
           : row.expiryDate - Date.now() < 2629746000
-          ? 'Exipres in 1 month'
-          : 'Active',
+          ? "Exipres in 1 month"
+          : "Active",
       sortable: true,
     },
     {
-      name: 'Actions',
-      selector: (row) => <DeletePopover _id={row._id} handleDelete={handleDelete} />,
+      name: "Actions",
+      selector: (row) => (
+        <DeletePopover _id={row._id} handleDelete={handleDelete} />
+      ),
     },
   ];
 
   const paginationComponentOptions = {
-    rowsPerPageText: 'Rows per page',
-    rangeSeparatorText: 'of',
+    rowsPerPageText: "Rows per page",
+    rangeSeparatorText: "of",
     selectAllRowsItem: true,
   };
 
@@ -100,30 +105,32 @@ export default function Products({ products, warranties }) {
     {
       when: (row) => row.expiryDate < Date.now(),
       style: {
-        backgroundColor: 'rgb(210 35 19 / 90%)',
-        color: 'white',
-        '&:hover': {
-          cursor: 'not-allowed',
+        backgroundColor: "rgb(210 35 19 / 90%)",
+        color: "white",
+        "&:hover": {
+          cursor: "not-allowed",
         },
       },
     },
     {
       when: (row) => row.expiryDate > Date.now(),
       style: {
-        backgroundColor: 'rgb(12 155 82 / 90%)',
-        color: 'white',
-        '&:hover': {
-          cursor: 'cursor',
+        backgroundColor: "rgb(12 155 82 / 90%)",
+        color: "white",
+        "&:hover": {
+          cursor: "cursor",
         },
       },
     },
     {
-      when: (row) => row.expiryDate - Date.now() > 0 && row.expiryDate - Date.now() < 2629746000,
+      when: (row) =>
+        row.expiryDate - Date.now() > 0 &&
+        row.expiryDate - Date.now() < 2629746000,
       style: {
-        backgroundColor: 'rgb(236 139 0 / 90%)',
-        color: 'white',
-        '&:hover': {
-          cursor: 'cursor',
+        backgroundColor: "rgb(236 139 0 / 90%)",
+        color: "white",
+        "&:hover": {
+          cursor: "cursor",
         },
       },
     },
@@ -148,7 +155,9 @@ export default function Products({ products, warranties }) {
               }
             />
           </div>
-          <div className="self-end">
+          <div className="self-end flex gap-10">
+            {/* <SearchBar /> */}
+            <AddUserModal refreshData={refreshData} />
             <Modal products={products} refreshData={refreshData} />
           </div>
         </div>
@@ -162,7 +171,21 @@ export default function Products({ products, warranties }) {
           highlightOnHover
           pointerOnHover
           conditionalRowStyles={conditionalRowStyles}
-          paginationComponentOptions={paginationComponentOptions}></DataTable>
+          paginationComponentOptions={paginationComponentOptions}
+        ></DataTable>
+
+        <DataTable
+          columns={columns}
+          data={items}
+          pagination
+          responsive
+          fixedHeader
+          striped
+          highlightOnHover
+          pointerOnHover
+          conditionalRowStyles={conditionalRowStyles}
+          paginationComponentOptions={paginationComponentOptions}
+        ></DataTable>
       </div>
     </div>
   );
@@ -171,10 +194,18 @@ export default function Products({ products, warranties }) {
 export async function getServerSideProps() {
   try {
     const client = await clientPromise;
-    const db = client.db('yatoam');
+    const db = client.db("yatoam");
 
-    const products = await db.collection('products').find({}).limit(5000).toArray();
-    const warranties = await db.collection('warranties').find({}).limit(5000).toArray();
+    const products = await db
+      .collection("products")
+      .find({})
+      .limit(5000)
+      .toArray();
+    const warranties = await db
+      .collection("warranties")
+      .find({})
+      .limit(5000)
+      .toArray();
 
     return {
       props: {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -6,17 +6,38 @@ import { useRouter } from "next/router";
 // layout for page
 
 export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
   const router = useRouter();
   const { data: session } = useSession();
 
-  const handleSignIn = async (e, provider: string) => {
-    e.preventDefault;
-    // Trigger sign-in
-    await signIn(provider);
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError("All fields are necessary");
+      return;
+    }
 
-    // Redirect to the profile page after successful sign-in
-    session ? router.push("/profile") : "";
-    console.log(router);
+    await signIn("credentials", {
+      username: username,
+      password: password,
+      redirect: false,
+    });
+
+    if (session) {
+      session ? router.push("/") : "";
+    } else {
+      setError("Wrong username or password");
+    }
+  };
+
+  const handleUsernameInput = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordInput = (e) => {
+    setPassword(e.target.value);
   };
 
   return (
@@ -28,18 +49,19 @@ export default function Login() {
               <div className="text-slate-400 text-center mb-3 font-bold">
                 <small>Sign in with credentials</small>
               </div>
-              <form>
+              <form onSubmit={handleSignIn}>
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-slate-600 text-xs font-bold mb-2"
                     htmlFor="grid-password"
                   >
-                    Email
+                    Username
                   </label>
                   <input
-                    type="email"
+                    type="text"
+                    onChange={handleUsernameInput}
                     className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    placeholder="Email"
+                    placeholder="Username"
                   />
                 </div>
 
@@ -52,6 +74,7 @@ export default function Login() {
                   </label>
                   <input
                     type="password"
+                    onChange={handlePasswordInput}
                     className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                     placeholder="Password"
                   />
@@ -72,32 +95,19 @@ export default function Login() {
                 <div className="text-center mt-6">
                   <button
                     className="bg-slate-800 text-white active:bg-slate-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                    type="button"
+                    type="submit"
                   >
                     Sign In
                   </button>
                 </div>
+                {error && (
+                  <div className="text-red-500 w-fit text-sm py-1 px-3 rounded-md mt-2">
+                    {error}
+                  </div>
+                )}
               </form>
             </div>
           </div>
-          {/* <div className="flex flex-wrap mt-6 relative">
-              <div className="w-1/2">
-                <a
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-slate-200"
-                >
-                  <small>Forgot password?</small>
-                </a>
-              </div>
-              <div className="w-1/2 text-right">
-                <Link legacyBehavior href="/auth/register">
-                  <a href="#pablo" className="text-slate-200">
-                    <small>Create new account</small>
-                  </a>
-                </Link>
-              </div>
-            </div> */}
         </div>
       </div>
     </div>

@@ -11,41 +11,33 @@ import {
 } from "@nextui-org/react";
 import { Formik } from "formik";
 import { PlusIcon } from "../components/icons/PlusIcon";
-import SearchBar from "./searchbar";
 
-export default function AddWarantyModal({ products, refreshData }) {
+export default function AddUserModal({ refreshData }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [sku, setSku] = useState();
-  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState();
 
-  const handleSearch = (SKU: string) => {
-    if (!SKU) return;
-    const filteredItem = products.filter((item: { SKU: string }) =>
-      item.SKU.toLowerCase().includes(SKU?.toLowerCase())
-    );
-    console.log("Search query:", SKU);
-    console.log("Filtered items:", filteredItem);
-    setName(filteredItem[0]?.Name);
-    setSku(filteredItem[0].SKU);
-    // Implement further actions as needed
+  const handleUsername = (e) => {
+    setUsername(e.target.value);
   };
 
-  const handlePhone = (e) => {
-    setPhone(e.target.value);
+  const handleName = (e) => {
+    setName(e.target.value);
+  };
+
+  const handlePassword = (e) => {
+    setPassword(e.target.value);
   };
 
   const handleAdd = async (onClose) => {
     try {
-      await fetch("/api/warranties", {
+      await fetch("/api/users", {
         method: "POST",
         body: JSON.stringify({
-          Name: name,
-          SKU: sku,
-          phone,
-          expiryDate: Date.now() + 1000 * 60 * 60 * 24 * 365,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          name: name,
+          username: username,
+          password: password,
         }),
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -53,17 +45,25 @@ export default function AddWarantyModal({ products, refreshData }) {
         },
       });
       // response = await response.json();
+      console.log(
+        "new user is created",
+        "password:",
+        password,
+        "username:",
+        username
+      );
       onClose();
       refreshData();
     } catch (errorMessage: any) {
       console.error(errorMessage);
     }
+    onClose();
   };
 
   return (
     <>
       <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
-        Add
+        Add User
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
@@ -71,33 +71,42 @@ export default function AddWarantyModal({ products, refreshData }) {
             <Formik>
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  Add Warranty
+                  Add User
                 </ModalHeader>
                 <ModalBody>
-                  <SearchBar items={products} handleSearch={handleSearch} />
                   <Input
                     required
                     isRequired
-                    isReadOnly
                     label="Name"
-                    placeholder="Product Name"
+                    placeholder="Name"
                     variant="bordered"
-                    value={name}
+                    onChange={handleName}
                   />
                   <Input
                     required
                     isRequired
-                    label="Phone Number"
-                    placeholder="055xxxxxx"
+                    label="Username"
+                    placeholder="Username"
                     variant="bordered"
-                    onChange={handlePhone}
+                    onChange={handleUsername}
+                  />
+                  <Input
+                    required
+                    isRequired
+                    type="password"
+                    label="Password"
+                    placeholder="Password"
+                    variant="bordered"
+                    onChange={handlePassword}
                   />
                 </ModalBody>
                 <ModalFooter>
                   <Button
                     variant="flat"
                     onPress={() => {
+                      setUsername("");
                       setName("");
+                      setPassword("");
                       onClose();
                     }}
                   >

@@ -11,6 +11,11 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
+        name: {
+          label: 'Name',
+          type: 'text',
+          placeholder: 'name',
+        },
         username: {
           label: 'Username',
           type: 'text',
@@ -19,7 +24,7 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const { username, password } = credentials;
+        const { name,  username, password } = credentials;
         if (username === 'admin' && password === 'admin') {
           const user = { id: 1, name: 'Admin', role: 'admin'};
           return user;
@@ -53,3 +58,51 @@ export const authOptions: AuthOptions = {
 };
 
 export default NextAuth(authOptions);
+
+
+// import { AuthOptions } from 'next-auth';
+// import CredentialsProvider from 'next-auth/providers/credentials';
+// import { compare } from 'bcrypt'; // Import the compare function from bcrypt
+
+// export const authOptions: AuthOptions = {
+//   providers: [
+//     CredentialsProvider({
+//       name: 'Credentials',
+//       credentials: {
+//         username: {
+//           label: 'Username',
+//           type: 'text',
+//           placeholder: 'username',
+//         },
+//         password: { label: 'Password', type: 'password' },
+//       },
+//       async authorize(credentials) {
+//         const { username, password } = credentials;
+
+        
+//         const user = 
+
+//         if (!user) {
+//           return null; // User not found
+//         }
+
+//         // Compare the provided password with the hashed password from the database
+//         const passwordMatches = await compare(password, user.hashedPassword);
+
+//         if (passwordMatches) {
+//           return user; // Return the user if the passwords match
+//         } else {
+//           return null; // Return null if passwords do not match
+//         }
+//       },
+//     }),
+//   ],
+//   callbacks: {
+//     async session({ session, token, user }) {
+//       session.accessToken = token.accessToken;
+//       return session;
+//     },
+//   },
+// };
+
+// export default NextAuth(authOptions);
