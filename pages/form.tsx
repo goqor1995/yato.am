@@ -22,8 +22,6 @@ export default function Products({ products }) {
       return row.SKU.includes(SKU);
     });
     setItems(filteredItems);
-    console.log("Search query:", SKU);
-    console.log("Filtered items:", filteredItems);
     setName(filteredItems[0]?.Name);
     setSku(filteredItems[0].SKU);
     // Implement further actions as needed

@@ -1,12 +1,12 @@
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-// import bcrypt from 'bcrypt';
+import { compare } from 'bcrypt';
+import clientPromise from '../../../lib/mongodb';
 
-// const client = await clientPromise;
-// const db = client.db();
+const client = await clientPromise;
+const db = client.db();
 
 export const authOptions: AuthOptions = {
-  // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -24,34 +24,42 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const { name,  username, password } = credentials;
-        if (username === 'admin' && password === 'admin') {
-          const user = { id: 1, name: 'Admin', role: 'admin'};
-          return user;
-        } else {
-          return null;
+        if(!credentials) {
+          throw new Error('Missing credentials');
         }
-        // if (user) {
-        //   //   Any object returned will be saved in `user` property of the JWT
-        //   //   Get user from database
-        //   //   const passwordMatches = await bcrypt.compare(password, user.rows[0].password);
-        //   if (passwordMatches) {
-        //     return user;
-        //   } else {
-        //     return null;
-        //   }
-        // } else {
-        //   // If you return null then an error will be displayed advising the user to check their details.
-        //   return null;
-        //   // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        // }
+        const { name,  username, password } = credentials;
+
+        try {
+          const user = await db.collection('users').findOne({username});
+
+          if(user) {
+            const nameMatches = name === user.name;
+            const usernameMatches = username === user.username;
+            const passwordMatches = await compare(password, user.hashedPassword)
+            if (passwordMatches && nameMatches && usernameMatches) {
+              return {
+                id: user._id,
+                name: user.name,
+                username: user.username
+              };
+            } else {
+              throw new Error('Invalid password');
+            }
+          } else {
+            throw new Error('User not found');
+          }
+        } 
+        catch (error) {
+          console.error('Authorization error:', error);
+          throw new Error('Authorization failed');
+        }
       },
     }),
   ],
   callbacks: {
     async session({ session, token, user }) {
-      // Send properties to the client, like an access_token from a provider.
       session.accessToken = token.accessToken;
+      session.user = {...session.user, ...user};
       return session;
     },
   },

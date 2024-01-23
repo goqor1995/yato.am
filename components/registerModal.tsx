@@ -44,14 +44,6 @@ export default function AddUserModal({ refreshData }) {
           "Content-Type": "application/json",
         },
       });
-      // response = await response.json();
-      console.log(
-        "new user is created",
-        "password:",
-        password,
-        "username:",
-        username
-      );
       onClose();
       refreshData();
     } catch (errorMessage: any) {

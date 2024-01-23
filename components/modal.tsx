@@ -24,8 +24,6 @@ export default function AddWarantyModal({ products, refreshData }) {
     const filteredItem = products.filter((item: { SKU: string }) =>
       item.SKU.toLowerCase().includes(SKU?.toLowerCase())
     );
-    console.log("Search query:", SKU);
-    console.log("Filtered items:", filteredItem);
     setName(filteredItem[0]?.Name);
     setSku(filteredItem[0].SKU);
     // Implement further actions as needed

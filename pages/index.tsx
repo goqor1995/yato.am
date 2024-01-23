@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getSession } from "next-auth/react";
 import moment from "moment";
 import { useRouter } from "next/router";
 import { Input } from "@nextui-org/react";
@@ -11,8 +12,10 @@ import AddUserModal from "../components/registerModal";
 import DeletePopover from "../components/DeletePopover";
 import { SearchIcon } from "../components/icons/SearchIcon";
 
-export default function Products({ products, warranties }) {
+export default function Products({ products, warranties, users, user }) {
   const [items, setItems] = useState(warranties);
+  const [registeredUsers, setRegisteredUsers] = useState(users);
+  const [currentUser, setCurrentUser] = useState(user);
 
   // Next.js has a bug where it tries to render the component before the window object is available.
   const [mounted, setMounted] = useState(false);
@@ -88,6 +91,25 @@ export default function Products({ products, warranties }) {
     },
   ];
 
+  const userColumns = [
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      // sortable: true,
+      width: "40%",
+    },
+    {
+      name: "Username",
+      selector: (row) => row.username,
+    },
+    {
+      name: "Actions",
+      selector: (row) => (
+        <DeletePopover _id={row._id} handleDelete={handleDelete} />
+      ),
+    },
+  ];
+
   const paginationComponentOptions = {
     rowsPerPageText: "Rows per page",
     rangeSeparatorText: "of",
@@ -140,7 +162,6 @@ export default function Products({ products, warranties }) {
     <div className="container">
       <Head>
         <title>Yato.am - Warranties</title>
-        {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
       <div className="">
         {/* <h3>Warranties</h3> */}
@@ -161,9 +182,10 @@ export default function Products({ products, warranties }) {
             <Modal products={products} refreshData={refreshData} />
           </div>
         </div>
+        {/* {username === "admin" ? ( */}
         <DataTable
-          columns={columns}
-          data={items}
+          columns={userColumns}
+          data={registeredUsers}
           pagination
           responsive
           fixedHeader
@@ -173,7 +195,9 @@ export default function Products({ products, warranties }) {
           conditionalRowStyles={conditionalRowStyles}
           paginationComponentOptions={paginationComponentOptions}
         ></DataTable>
-
+        {/* ) : (
+          <></>
+        )} */}
         <DataTable
           columns={columns}
           data={items}
@@ -191,10 +215,23 @@ export default function Products({ products, warranties }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   try {
     const client = await clientPromise;
     const db = client.db("yatoam");
+    const session = await getSession(context);
+    if (!session?.user) {
+      // Redirect or handle the case when the user is not authenticated
+      return {
+        redirect: {
+          destination: "/auth/signin", // Redirect to your login page
+          permanent: false,
+        },
+      };
+    }
+
+    console.log(session, session.user);
+    const users = await db.collection("users").find({}).limit(5000).toArray();
 
     const products = await db
       .collection("products")
@@ -209,6 +246,13 @@ export async function getServerSideProps() {
 
     return {
       props: {
+        // user: {
+        //   id: session.user.id,
+        //   name: session.user,name,
+        //   username: session.user.username,
+        // },
+        user: session.user,
+        users: JSON.parse(JSON.stringify(users)),
         products: JSON.parse(JSON.stringify(products)),
         warranties: JSON.parse(JSON.stringify(warranties)),
       },
@@ -216,7 +260,7 @@ export async function getServerSideProps() {
   } catch (e) {
     console.error(e);
     return {
-      props: { products: [], warranties: [] }, // Return an empty array or handle the error accordingly
+      props: { users: [], products: [], warranties: [] },
     };
   }
 }

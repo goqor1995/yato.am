@@ -41,7 +41,6 @@ export default async (req: any, res: { json: (arg0: any) => void }) => {
       break;
     case 'DELETE':
       try {
-        console.log(req.body._id);
         const result = await db.collection('warranties').deleteOne({ _id: new ObjectId(req.body._id) });
         res.json(result);
       } catch (error) {
