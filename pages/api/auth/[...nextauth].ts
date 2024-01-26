@@ -7,6 +7,7 @@ const client = await clientPromise;
 const db = client.db();
 
 export const authOptions: AuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -28,15 +29,12 @@ export const authOptions: AuthOptions = {
           throw new Error('Missing credentials');
         }
         const { name,  username, password } = credentials;
-
         try {
           const user = await db.collection('users').findOne({username});
 
           if(user) {
-            const nameMatches = name === user.name;
-            const usernameMatches = username === user.username;
             const passwordMatches = await compare(password, user.hashedPassword)
-            if (passwordMatches && nameMatches && usernameMatches) {
+            if (passwordMatches) {
               return {
                 id: user._id,
                 name: user.name,
@@ -59,6 +57,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token, user }) {
       session.accessToken = token.accessToken;
+      await console.log("user:", user,"token", token);
       session.user = {...session.user, ...user};
       return session;
     },

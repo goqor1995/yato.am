@@ -13,11 +13,16 @@ import { Formik } from "formik";
 import { PlusIcon } from "../components/icons/PlusIcon";
 import SearchBar from "./searchbar";
 
-export default function AddWarantyModal({ products, refreshData }) {
+export default function AddWarantyModal({
+  products,
+  refreshData,
+  currentUser,
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [name, setName] = useState("");
   const [sku, setSku] = useState();
   const [phone, setPhone] = useState("");
+  const [owner, setOwner] = useState(currentUser);
 
   const handleSearch = (SKU: string) => {
     if (!SKU) return;
@@ -33,7 +38,12 @@ export default function AddWarantyModal({ products, refreshData }) {
     setPhone(e.target.value);
   };
 
+  const handleOwner = () => {
+    setOwner(currentUser);
+  };
+
   const handleAdd = async (onClose) => {
+    handleOwner();
     try {
       await fetch("/api/warranties", {
         method: "POST",
@@ -44,6 +54,7 @@ export default function AddWarantyModal({ products, refreshData }) {
           expiryDate: Date.now() + 1000 * 60 * 60 * 24 * 365,
           createdAt: Date.now(),
           updatedAt: Date.now(),
+          owner: owner,
         }),
         headers: {
           Accept: "application/json, text/plain, */*",

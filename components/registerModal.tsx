@@ -20,11 +20,11 @@ export default function AddUserModal({ refreshData }) {
 
   const handleUsername = (e) => {
     setUsername(e.target.value);
-  };
-
-  const handleName = (e) => {
     setName(e.target.value);
   };
+
+  // const handleName = (e) => {
+  // };
 
   const handlePassword = (e) => {
     setPassword(e.target.value);
@@ -66,14 +66,14 @@ export default function AddUserModal({ refreshData }) {
                   Add User
                 </ModalHeader>
                 <ModalBody>
-                  <Input
+                  {/* <Input
                     required
                     isRequired
                     label="Name"
                     placeholder="Name"
                     variant="bordered"
                     onChange={handleName}
-                  />
+                  /> */}
                   <Input
                     required
                     isRequired

@@ -2,41 +2,73 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
 
 // layout for page
 
 export default function Login() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const router = useRouter();
   const { data: session } = useSession();
 
+  // const handleSignIn = async (e) => {
+  //   e.preventDefault();
+  //   if (!name || !username || !password) {
+  //     setError("All fields are necessary");
+  //     return;
+  //   }
+
+  //   await signIn("credentials", {
+  //     name: name,
+  //     username: username,
+  //     password: password,
+  //     redirect: false,
+  //   });
+
+  //   if (session) {
+  //     session ? router.push("/") : "";
+  //   } else {
+  //     setError("Wrong username or password");
+  //   }
+  // };
+
   const handleSignIn = async (e) => {
     e.preventDefault();
-    if (!username || !password) {
+
+    if (!name || !username || !password) {
       setError("All fields are necessary");
       return;
     }
 
-    await signIn("credentials", {
+    const signInResponse = await signIn("credentials", {
+      name: name,
       username: username,
       password: password,
       redirect: false,
     });
 
-    if (session) {
-      session ? router.push("/") : "";
-    } else {
+    if (signInResponse?.error) {
       setError("Wrong username or password");
+    } else {
+      // Check the session after signing in
+      const session = await getSession();
+      if (session) {
+        router.push("/");
+      } else {
+        setError("Wrong username or password");
+      }
     }
   };
 
-  const handleNameInput = (e) => {
-    setUsername(e.target.value);
-  };
+  // const handleNameInput = (e) => {
+  //   setName(e.target.value);
+  // };
 
   const handleUsernameInput = (e) => {
+    setName(e.target.value);
     setUsername(e.target.value);
   };
 
@@ -54,7 +86,7 @@ export default function Login() {
                 <small>Sign in with credentials</small>
               </div>
               <form onSubmit={handleSignIn}>
-                <div className="relative w-full mb-3">
+                {/* <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-slate-600 text-xs font-bold mb-2"
                     htmlFor="grid-password"
@@ -67,7 +99,7 @@ export default function Login() {
                     className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                     placeholder="Username"
                   />
-                </div>
+                </div> */}
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-slate-600 text-xs font-bold mb-2"

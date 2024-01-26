@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     case 'DELETE':
       try {
-        const result = await db.collection('users').deleteOne({ _id: new ObjectId(req.body._id) });
+        const result = await db.collection('users').deleteOne({ username: new ObjectId(req.body.username) });
         res.json(result);
       } catch (error) {
         res.json(error);
