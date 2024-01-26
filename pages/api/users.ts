@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { ObjectId } from 'mongodb';
 import { hash } from 'bcrypt';
 import clientPromise from '../../lib/mongodb';
 
@@ -21,12 +22,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { name, username, password } = req.body;
 
         if (!name || !username || !password) {
-          return res.status(400).json({ error: 'Missing required fields.' });
+          return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        const exists = await db.collection('users').findOne({username})
+        const exists = await db.collection('users').findOne({ username });
 
-        if(exists) {
+        if (exists) {
           return;
         }
 
@@ -49,8 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     case 'DELETE':
       try {
-        const result = await db.collection('users').deleteOne({ username: new ObjectId(req.body.username) });
-        res.json(result);
+        await db.collection('users').deleteOne({ _id: new ObjectId(req.body._id) });
+        res.json({ message: 'success' });
       } catch (error) {
         res.json(error);
       }
