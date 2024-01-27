@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { getSession, signOut } from "next-auth/react";
 import moment from "moment";
 import { useRouter } from "next/router";
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button, Spinner } from "@nextui-org/react";
 import DataTable from "react-data-table-component";
 import Head from "next/head";
 import clientPromise from "../lib/mongodb";
 import Modal from "../components/modal";
-import SearchBar from "../components/searchbar";
 import AddUserModal from "../components/registerModal";
 import DeletePopover from "../components/DeletePopover";
 import FilterButton from "../components/FilterButton";
@@ -18,8 +17,8 @@ export default function Products({ products, warranties, users, user }) {
   const [registeredUsers, setRegisteredUsers] = useState(users);
   const [currentUser, setCurrentUser] = useState(user);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Next.js has a bug where it tries to render the component before the window object is available.
   const [mounted, setMounted] = useState(false);
   console.log(users);
   const handleFilter = (user) => {
@@ -40,21 +39,20 @@ export default function Products({ products, warranties, users, user }) {
   }, [user]);
 
   if (!mounted) return <></>;
-  // End of bug fix
 
   const router = useRouter();
-  // Call this function whenever you want to
-  // refresh props!
   const refreshData = () => {
     router.reload();
   };
 
   const handleSignOut = async () => {
-    // Sign out and redirect to login page
+    setLoading(true);
     await signOut({ callbackUrl: "/auth/signin" });
+    setLoading(false);
   };
 
   const handleDeleteUser = async (userId) => {
+    setLoading(true);
     try {
       await fetch("/api/users", {
         method: "DELETE",
@@ -66,14 +64,16 @@ export default function Products({ products, warranties, users, user }) {
           "Content-Type": "application/json",
         },
       });
-      // You might want to refresh the list of users after deletion
       refreshData();
+      setLoading(false);
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
+    setLoading(true);
     try {
       await fetch("/api/warranties", {
         method: "DELETE",
@@ -87,8 +87,10 @@ export default function Products({ products, warranties, users, user }) {
       });
 
       refreshData();
+      setLoading(false);
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
 
@@ -149,12 +151,12 @@ export default function Products({ products, warranties, users, user }) {
         <FilterButton _id={row.name} handleFilter={handleFilter} />
       ),
     },
-    // {
-    //   name: "Remove",
-    //   selector: (row) => (
-    //     <DeletePopover _id={row.username} handleDelete={handleDeleteUser} />
-    //   ),
-    // },
+    {
+      name: "Remove",
+      selector: (row) => (
+        <DeletePopover _id={row.username} handleDelete={handleDeleteUser} />
+      ),
+    },
   ];
 
   const paginationComponentOptions = {
@@ -217,9 +219,13 @@ export default function Products({ products, warranties, users, user }) {
       <Head>
         <title>Yato.am - Warranties</title>
       </Head>
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Spinner size="lg" />
+        </div>
+      )}
       {isAdmin ? (
         <div className="">
-          {/* <h3>Warranties</h3> */}
           <div className="flex justify-between items-center gap-3 mt-6 mb-5">
             <div className="self-start w-[250px]">
               <Input
@@ -232,12 +238,17 @@ export default function Products({ products, warranties, users, user }) {
               />
             </div>
             <div className="self-end flex gap-10">
-              {/* <SearchBar /> */}
-              <AddUserModal refreshData={refreshData} />
+              <AddUserModal
+                refreshData={refreshData}
+                loading={loading}
+                setLoading={setLoading}
+              />
               <Modal
                 products={products}
                 refreshData={refreshData}
                 currentUser={currentUser}
+                loading={loading}
+                setLoading={setLoading}
               />
               <Button size="sm" onClick={handleSignOut}>
                 Sign Out
@@ -282,7 +293,6 @@ export default function Products({ products, warranties, users, user }) {
         </div>
       ) : (
         <div className="">
-          {/* <h3>Warranties</h3> */}
           <div className="flex justify-between items-center gap-3 mt-6 mb-5">
             <div className="self-start w-[250px]">
               <Input
@@ -295,8 +305,6 @@ export default function Products({ products, warranties, users, user }) {
               />
             </div>
             <div className="self-end flex gap-10">
-              {/* <SearchBar /> */}
-              {/* {isAdmin ? <AddUserModal refreshData={refreshData} /> : <></>} */}
               <Modal
                 products={products}
                 refreshData={refreshData}
@@ -331,7 +339,6 @@ export async function getServerSideProps(context) {
     const db = client.db("yatoam");
     const session = await getSession(context);
     if (!session?.user) {
-      // Redirect or handle the case when the user is not authenticated
       return {
         redirect: {
           destination: "/auth/signin", // Redirect to your login page
@@ -341,8 +348,6 @@ export async function getServerSideProps(context) {
     }
 
     const users = await db.collection("users").find({}).limit(5000).toArray();
-    console.log("session:", session);
-    console.log("session.user:", session.user);
 
     const products = await db
       .collection("products")
@@ -357,11 +362,6 @@ export async function getServerSideProps(context) {
 
     return {
       props: {
-        // user: {
-        //   id: session.user.id,
-        //   name: session.user,name,
-        //   username: session.user.username,
-        // },
         user: session.user,
         users: JSON.parse(JSON.stringify(users)),
         products: JSON.parse(JSON.stringify(products)),

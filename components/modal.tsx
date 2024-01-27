@@ -8,15 +8,19 @@ import {
   Button,
   useDisclosure,
   Input,
+  Spinner,
 } from "@nextui-org/react";
 import { Formik } from "formik";
 import { PlusIcon } from "../components/icons/PlusIcon";
 import SearchBar from "./searchbar";
+import { Loading } from "next-auth/react";
 
 export default function AddWarantyModal({
   products,
   refreshData,
   currentUser,
+  loading,
+  setLoading,
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [name, setName] = useState("");
@@ -31,7 +35,6 @@ export default function AddWarantyModal({
     );
     setName(filteredItem[0]?.Name);
     setSku(filteredItem[0].SKU);
-    // Implement further actions as needed
   };
 
   const handlePhone = (e) => {
@@ -43,6 +46,7 @@ export default function AddWarantyModal({
   };
 
   const handleAdd = async (onClose) => {
+    setLoading(true);
     handleOwner();
     try {
       await fetch("/api/warranties", {
@@ -61,11 +65,12 @@ export default function AddWarantyModal({
           "Content-Type": "application/json",
         },
       });
-      // response = await response.json();
       onClose();
       refreshData();
+      setLoading(false);
     } catch (errorMessage: any) {
       console.error(errorMessage);
+      setLoading(false);
     }
   };
 
@@ -74,57 +79,67 @@ export default function AddWarantyModal({
       <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
         Add
       </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
-        <ModalContent>
-          {(onClose) => (
-            <Formik>
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Add Warranty
-                </ModalHeader>
-                <ModalBody>
-                  <SearchBar items={products} handleSearch={handleSearch} />
-                  <Input
-                    required
-                    isRequired
-                    isReadOnly
-                    label="Name"
-                    placeholder="Product Name"
-                    variant="bordered"
-                    value={name}
-                  />
-                  <Input
-                    required
-                    isRequired
-                    label="Phone Number"
-                    placeholder="055xxxxxx"
-                    variant="bordered"
-                    onChange={handlePhone}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    variant="flat"
-                    onPress={() => {
-                      setName("");
-                      onClose();
-                    }}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    color="primary"
-                    type="submit"
-                    onPress={() => handleAdd(onClose)}
-                  >
-                    Add
-                  </Button>
-                </ModalFooter>
-              </>
-            </Formik>
-          )}
-        </ModalContent>
-      </Modal>
+      {loading ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          placement="top-center"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <Formik>
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Add Warranty
+                  </ModalHeader>
+                  <ModalBody>
+                    <SearchBar items={products} handleSearch={handleSearch} />
+                    <Input
+                      required
+                      isRequired
+                      isReadOnly
+                      label="Name"
+                      placeholder="Product Name"
+                      variant="bordered"
+                      value={name}
+                    />
+                    <Input
+                      required
+                      isRequired
+                      label="Phone Number"
+                      placeholder="055xxxxxx"
+                      variant="bordered"
+                      onChange={handlePhone}
+                    />
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      variant="flat"
+                      onPress={() => {
+                        setName("");
+                        onClose();
+                      }}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      color="primary"
+                      type="submit"
+                      onPress={() => handleAdd(onClose)}
+                    >
+                      Add
+                    </Button>
+                  </ModalFooter>
+                </>
+              </Formik>
+            )}
+          </ModalContent>
+        </Modal>
+      )}
     </>
   );
 }
