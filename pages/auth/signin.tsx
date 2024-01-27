@@ -1,49 +1,28 @@
-import React, { useState } from "react";
-import Link from "next/link";
-import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/router";
-import { getSession } from "next-auth/react";
-
-// layout for page
+import React, { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/react';
+import { Spinner, Button } from '@nextui-org/react';
 
 export default function Login() {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState<string>();
+  const [password, setPassword] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
-  const { data: session } = useSession();
 
-  // const handleSignIn = async (e) => {
-  //   e.preventDefault();
-  //   if (!name || !username || !password) {
-  //     setError("All fields are necessary");
-  //     return;
-  //   }
-
-  //   await signIn("credentials", {
-  //     name: name,
-  //     username: username,
-  //     password: password,
-  //     redirect: false,
-  //   });
-
-  //   if (session) {
-  //     session ? router.push("/") : "";
-  //   } else {
-  //     setError("Wrong username or password");
-  //   }
-  // };
-
-  const handleSignIn = async (e) => {
+  const handleSignIn = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
+    setLoading(true);
     if (!name || !username || !password) {
-      setError("All fields are necessary");
+      setError('All fields are necessary');
       return;
     }
 
-    const signInResponse = await signIn("credentials", {
+    const signInResponse = await signIn('credentials', {
       name: name,
       username: username,
       password: password,
@@ -51,28 +30,25 @@ export default function Login() {
     });
 
     if (signInResponse?.error) {
-      setError("Wrong username or password");
+      setError('Wrong username or password');
     } else {
       // Check the session after signing in
       const session = await getSession();
       if (session) {
-        router.push("/");
+        router.push('/');
       } else {
-        setError("Wrong username or password");
+        setError('Wrong username or password');
       }
     }
+    setLoading(false);
   };
 
-  // const handleNameInput = (e) => {
-  //   setName(e.target.value);
-  // };
-
-  const handleUsernameInput = (e) => {
+  const handleUsernameInput = (e: any) => {
     setName(e.target.value);
     setUsername(e.target.value);
   };
 
-  const handlePasswordInput = (e) => {
+  const handlePasswordInput = (e: any) => {
     setPassword(e.target.value);
   };
 
@@ -86,25 +62,8 @@ export default function Login() {
                 <small>Sign in with credentials</small>
               </div>
               <form onSubmit={handleSignIn}>
-                {/* <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-slate-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
-                  >
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    onChange={handleNameInput}
-                    className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    placeholder="Username"
-                  />
-                </div> */}
                 <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-slate-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
-                  >
+                  <label className="block uppercase text-slate-600 text-xs font-bold mb-2" htmlFor="grid-password">
                     Username
                   </label>
                   <input
@@ -116,10 +75,7 @@ export default function Login() {
                 </div>
 
                 <div className="relative w-full mb-3">
-                  <label
-                    className="block uppercase text-slate-600 text-xs font-bold mb-2"
-                    htmlFor="grid-password"
-                  >
+                  <label className="block uppercase text-slate-600 text-xs font-bold mb-2" htmlFor="grid-password">
                     Password
                   </label>
                   <input
@@ -129,37 +85,24 @@ export default function Login() {
                     placeholder="Password"
                   />
                 </div>
-                <div>
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input
-                      id="customCheckLogin"
-                      type="checkbox"
-                      className="form-checkbox border-0 rounded text-slate-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
-                    />
-                    <span className="ml-2 text-sm font-semibold text-slate-600">
-                      Remember me
-                    </span>
-                  </label>
-                </div>
-
                 <div className="text-center mt-6">
-                  <button
+                  <Button
                     className="bg-slate-800 text-white active:bg-slate-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                    type="submit"
-                  >
+                    type="submit">
                     Sign In
-                  </button>
+                  </Button>
                 </div>
-                {error && (
-                  <div className="text-red-500 w-fit text-sm py-1 px-3 rounded-md mt-2">
-                    {error}
-                  </div>
-                )}
+                {error && <div className="text-red-500 w-fit text-sm py-1 px-3 rounded-md mt-2">{error}</div>}
               </form>
             </div>
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Spinner size="lg" color="default" />
+        </div>
+      )}
     </div>
   );
 }

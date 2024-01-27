@@ -1,9 +1,9 @@
 // pages/_app.js
-import { NextUIProvider } from "@nextui-org/react";
-import "../styles/globals.css";
-import { SessionProvider } from "next-auth/react";
+import { NextUIProvider } from '@nextui-org/react';
+import { SessionProvider } from 'next-auth/react';
+import '../styles/globals.css';
 
-function YatoApp({ Component, pageProps }) {
+function YatoApp({ Component, pageProps }: { Component: any; pageProps: any }) {
   return (
     <NextUIProvider>
       <SessionProvider>

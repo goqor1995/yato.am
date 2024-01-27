@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Key } from '@react-types/shared';
 import {
   Modal,
   ModalContent,
@@ -8,33 +9,37 @@ import {
   Button,
   useDisclosure,
   Input,
-} from "@nextui-org/react";
-import { Formik } from "formik";
-import { PlusIcon } from "../components/icons/PlusIcon";
-import SearchBar from "./searchbar";
+  Spinner,
+} from '@nextui-org/react';
+import { PlusIcon } from './icons/PlusIcon';
+import SearchBar from './searchbar';
 
 export default function AddWarantyModal({
   products,
   refreshData,
   currentUser,
+}: {
+  products: any;
+  refreshData: any;
+  currentUser: any;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [sku, setSku] = useState();
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState('');
   const [owner, setOwner] = useState(currentUser);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (SKU: string) => {
+  const handleSearch = (SKU: Key) => {
     if (!SKU) return;
     const filteredItem = products.filter((item: { SKU: string }) =>
-      item.SKU.toLowerCase().includes(SKU?.toLowerCase())
+      item.SKU.toLowerCase().includes(SKU?.toString().toLowerCase())
     );
     setName(filteredItem[0]?.Name);
     setSku(filteredItem[0].SKU);
-    // Implement further actions as needed
   };
 
-  const handlePhone = (e) => {
+  const handlePhone = (e: { target: { value: React.SetStateAction<string> } }) => {
     setPhone(e.target.value);
   };
 
@@ -42,26 +47,26 @@ export default function AddWarantyModal({
     setOwner(currentUser);
   };
 
-  const handleAdd = async (onClose) => {
+  const handleAdd = async (onClose: { (): void; (): void }) => {
+    setLoading(true);
     handleOwner();
     try {
-      await fetch("/api/warranties", {
-        method: "POST",
+      await fetch('/api/warranties', {
+        method: 'POST',
         body: JSON.stringify({
           Name: name,
           SKU: sku,
           phone,
+          owner,
           expiryDate: Date.now() + 1000 * 60 * 60 * 24 * 365,
           createdAt: Date.now(),
           updatedAt: Date.now(),
-          owner: owner,
         }),
         headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
         },
       });
-      // response = await response.json();
       onClose();
       refreshData();
     } catch (errorMessage: any) {
@@ -77,22 +82,11 @@ export default function AddWarantyModal({
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
-            <Formik>
+            <form>
               <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Add Warranty
-                </ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Add Warranty</ModalHeader>
                 <ModalBody>
                   <SearchBar items={products} handleSearch={handleSearch} />
-                  <Input
-                    required
-                    isRequired
-                    isReadOnly
-                    label="Name"
-                    placeholder="Product Name"
-                    variant="bordered"
-                    value={name}
-                  />
                   <Input
                     required
                     isRequired
@@ -106,25 +100,25 @@ export default function AddWarantyModal({
                   <Button
                     variant="flat"
                     onPress={() => {
-                      setName("");
+                      setName('');
                       onClose();
-                    }}
-                  >
+                    }}>
                     Close
                   </Button>
-                  <Button
-                    color="primary"
-                    type="submit"
-                    onPress={() => handleAdd(onClose)}
-                  >
+                  <Button color="primary" type="submit" onPress={() => handleAdd(onClose)}>
                     Add
                   </Button>
                 </ModalFooter>
               </>
-            </Formik>
+            </form>
           )}
         </ModalContent>
       </Modal>
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Spinner size="lg" color="default" />
+        </div>
+      )}
     </>
   );
 }

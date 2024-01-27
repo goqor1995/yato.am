@@ -1,7 +1,8 @@
-import React, { useState, ChangeEvent, Key } from 'react';
-import { Input } from '@nextui-org/react';
-import { Autocomplete, AutocompleteSection, AutocompleteItem } from '@nextui-org/react';
+import React from 'react';
+import { Key } from '@react-types/shared';
+import { Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { SearchIcon } from '../components/icons/SearchIcon';
+
 interface Item {
   Name: string;
   SKU: string;
@@ -9,7 +10,7 @@ interface Item {
 
 interface SearchBarProps {
   items: Item[];
-  handleSearch: (key: Key) => void;
+  handleSearch: (SKU: Key) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ items, handleSearch }) => {
@@ -22,6 +23,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ items, handleSearch }) => {
       label="Search in All Products"
       placeholder="Type SKU to search..."
       defaultItems={items}
+      // @ts-ignore
       onKeyDown={(e) => e.continuePropagation()}
       onSelectionChange={handleSearch}
       startContent={

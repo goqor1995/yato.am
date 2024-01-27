@@ -1,8 +1,8 @@
 import React from 'react';
-import { Popover, PopoverTrigger, PopoverContent, Button, Input } from '@nextui-org/react';
+import { Popover, PopoverTrigger, PopoverContent, Button } from '@nextui-org/react';
 import { DeleteIcon } from './icons/DeleteIcon';
 
-export default function DeletePopover({ _id, handleDelete }) {
+export default function DeletePopover({ _id, handleDelete }: { _id: string; handleDelete: (id: string) => void }) {
   const content = (
     <PopoverContent className="w-[240px]">
       {(titleProps) => (
