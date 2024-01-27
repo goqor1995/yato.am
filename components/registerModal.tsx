@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Key } from '@react-types/shared';
 import {
   Modal,
   ModalContent,
@@ -11,56 +10,36 @@ import {
   Input,
   Spinner,
 } from '@nextui-org/react';
-import { PlusIcon } from './icons/PlusIcon';
-import SearchBar from './searchbar';
+import { PlusIcon } from '../components/icons/PlusIcon';
 
-export default function AddWarantyModal({
-  products,
-  refreshData,
-  currentUser,
-}: {
-  products: any;
-  refreshData: any;
-  currentUser: any;
-}) {
+export default function AddUserModal({ refreshData }: { refreshData: () => void }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [username, setUsername] = useState('');
   const [name, setName] = useState('');
-  const [sku, setSku] = useState();
-  const [phone, setPhone] = useState('');
-  const [owner, setOwner] = useState(currentUser);
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = (SKU: Key) => {
-    if (!SKU) return;
-    const filteredItem = products.filter((item: { SKU: string }) =>
-      item.SKU.toLowerCase().includes(SKU?.toString().toLowerCase())
-    );
-    setName(filteredItem[0]?.Name);
-    setSku(filteredItem[0].SKU);
+  const handleUsername = (e: { target: { value: React.SetStateAction<string> } }) => {
+    setUsername(e.target.value);
   };
 
-  const handlePhone = (e: { target: { value: React.SetStateAction<string> } }) => {
-    setPhone(e.target.value);
+  const handleName = (e: { target: { value: React.SetStateAction<string> } }) => {
+    setName(e.target.value);
   };
 
-  const handleOwner = () => {
-    setOwner(currentUser);
+  const handlePassword = (e: { target: { value: React.SetStateAction<string> } }) => {
+    setPassword(e.target.value);
   };
 
   const handleAdd = async (onClose: { (): void; (): void }) => {
     setLoading(true);
-    handleOwner();
     try {
-      await fetch('/api/warranties', {
+      await fetch('/api/users', {
         method: 'POST',
         body: JSON.stringify({
-          Name: name,
-          SKU: sku,
-          phone,
-          owner,
-          expiryDate: Date.now() + 1000 * 60 * 60 * 24 * 365,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          name: name,
+          username: username,
+          password: password,
         }),
         headers: {
           Accept: 'application/json, text/plain, */*',
@@ -72,35 +51,47 @@ export default function AddWarantyModal({
     } catch (errorMessage: any) {
       console.error(errorMessage);
     }
+    onClose();
   };
 
   return (
     <>
       <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
-        Add
+        Add User
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
             <form>
               <>
-                <ModalHeader className="flex flex-col gap-1">Add Warranty</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Add User</ModalHeader>
                 <ModalBody>
-                  <SearchBar items={products} handleSearch={handleSearch} />
+                  <Input required isRequired label="Name" placeholder="Name" variant="bordered" onChange={handleName} />
                   <Input
                     required
                     isRequired
-                    label="Phone Number"
-                    placeholder="055xxxxxx"
+                    label="Username"
+                    placeholder="Username"
                     variant="bordered"
-                    onChange={handlePhone}
+                    onChange={handleUsername}
+                  />
+                  <Input
+                    required
+                    isRequired
+                    type="password"
+                    label="Password"
+                    placeholder="Password"
+                    variant="bordered"
+                    onChange={handlePassword}
                   />
                 </ModalBody>
                 <ModalFooter>
                   <Button
                     variant="flat"
                     onPress={() => {
+                      setUsername('');
                       setName('');
+                      setPassword('');
                       onClose();
                     }}>
                     Close

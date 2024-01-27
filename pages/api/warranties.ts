@@ -1,9 +1,18 @@
-import { Document, InsertOneResult, ObjectID, ObjectId, UpdateResult } from 'mongodb';
+import { ObjectId } from 'mongodb';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './auth/[...nextauth]';
 import clientPromise from '../../lib/mongodb';
 
-export default async (req: any, res: { json: (arg0: any) => void }) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   const client = await clientPromise;
   const db = client.db();
+
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   switch (req.method) {
     case 'GET':
       try {
@@ -41,7 +50,6 @@ export default async (req: any, res: { json: (arg0: any) => void }) => {
       break;
     case 'DELETE':
       try {
-        console.log(req.body._id);
         const result = await db.collection('warranties').deleteOne({ _id: new ObjectId(req.body._id) });
         res.json(result);
       } catch (error) {
