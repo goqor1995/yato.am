@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import moment from 'moment';
-import DataTable from 'react-data-table-component';
-import Head from 'next/head';
-import { Document } from 'mongodb';
-import { useRouter } from 'next/router';
-import { Input, Button, Spinner } from '@nextui-org/react';
-import { GetSessionParams, getSession, signOut } from 'next-auth/react';
-import { SearchIcon } from '../components/icons/SearchIcon';
-import Modal from '../components/modal';
-import AddUserModal from '../components/registerModal';
-import DeletePopover from '../components/DeletePopover';
-import FilterButton from '../components/FilterButton';
-import clientPromise from '../lib/mongodb';
+import React, { useEffect, useState } from "react";
+import moment from "moment";
+import DataTable from "react-data-table-component";
+import Head from "next/head";
+import { Document } from "mongodb";
+import { useRouter } from "next/router";
+import { Input, Button, Spinner } from "@nextui-org/react";
+import { GetSessionParams, getSession, signOut } from "next-auth/react";
+import { SearchIcon } from "../components/icons/SearchIcon";
+import Modal from "../components/modal";
+import AddUserModal from "../components/registerModal";
+import DeletePopover from "../components/DeletePopover";
+import FilterButton from "../components/FilterButton";
+import clientPromise from "../lib/mongodb";
 
 export default function Products({
   products,
@@ -39,7 +39,7 @@ export default function Products({
 
   const handleFilter = (owner: { username: string; _id: any }) => {
     setLoading(true);
-    if (owner.username === 'admin') {
+    if (owner.username === "admin") {
       setLoading(false);
       return setItems(warranties);
     }
@@ -53,7 +53,7 @@ export default function Products({
 
   useEffect(() => {
     if (!user) return;
-    if (user?.username === 'admin') {
+    if (user?.username === "admin") {
       setIsAdmin(true);
     }
   }, [user]);
@@ -68,21 +68,21 @@ export default function Products({
   const handleSignOut = async () => {
     setLoading(true);
     // Sign out and redirect to login page
-    await signOut({ callbackUrl: '/auth/signin' });
+    await signOut({ callbackUrl: "/auth/signin" });
     setLoading(false);
   };
 
   const handleDeleteUser = async (userId: string) => {
     setLoading(true);
     try {
-      await fetch('/api/users', {
-        method: 'DELETE',
+      await fetch("/api/users", {
+        method: "DELETE",
         body: JSON.stringify({
           _id: userId,
         }),
         headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
       });
       // You might want to refresh the list of users after deletion
@@ -95,14 +95,14 @@ export default function Products({
   const handleDelete = async (id: string) => {
     setLoading(true);
     try {
-      await fetch('/api/warranties', {
-        method: 'DELETE',
+      await fetch("/api/warranties", {
+        method: "DELETE",
         body: JSON.stringify({
           _id: id,
         }),
         headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
       });
 
@@ -114,33 +114,34 @@ export default function Products({
 
   const columns = [
     {
-      name: 'Product Name',
+      name: "Product Name",
       selector: (row: { Name: any }) => row.Name,
       // sortable: true,
-      width: '40%',
+      width: "40%",
     },
     {
-      name: 'SKU',
+      name: "SKU",
       selector: (row: { SKU: any }) => row.SKU,
     },
     {
-      name: 'Phone number',
+      name: "Phone number",
       selector: (row: { phone: any }) => row.phone,
       sortable: true,
     },
     {
-      name: 'Expiry Date',
-      selector: (row: { expiryDate: any }) => moment(new Date(Number(row.expiryDate))).format('DD/MM/YYYY HH:mm:ss'),
+      name: "Expiry Date",
+      selector: (row: { expiryDate: any }) =>
+        moment(new Date(Number(row.expiryDate))).format("DD/MM/YYYY HH:mm:ss"),
       sortable: true,
     },
     {
-      name: 'Status',
+      name: "Status",
       selector: (row: { expiryDate: number }) =>
         row.expiryDate < Date.now()
-          ? 'Expired'
+          ? "Expired"
           : row.expiryDate - Date.now() < 2629746000
-          ? 'Exipres in 1 month'
-          : 'Active',
+          ? "Exipres in 1 month"
+          : "Active",
       sortable: true,
       // conditionalCellStyles: [
       //   {
@@ -156,46 +157,52 @@ export default function Products({
       // ],
     },
     {
-      name: 'Actions',
-      selector: (row: { _id: string }) => <DeletePopover _id={row._id} handleDelete={handleDelete} />,
+      name: "Actions",
+      selector: (row: { _id: string }) => (
+        <DeletePopover _id={row._id} handleDelete={handleDelete} />
+      ),
     },
   ];
 
   const userColumns = [
     {
-      name: 'Name',
+      name: "Name",
       selector: (row: { name: string }) => row.name,
       // sortable: true,
-      width: '40%',
+      width: "40%",
     },
     {
-      name: 'Username',
+      name: "Username",
       selector: (row: { username: string }) => row.username,
     },
     {
-      name: 'Actions',
-      selector: (row: { _id: string; username: string }) => <FilterButton user={row} handleFilter={handleFilter} />,
+      name: "Actions",
+      selector: (row: { _id: string; username: string }) => (
+        <FilterButton user={row} handleFilter={handleFilter} />
+      ),
     },
     {
-      name: 'Remove',
+      name: "Remove",
       selector: (row: { username: string; _id: string }) => {
-        if (row.username === 'admin') return;
+        if (row.username === "admin") return;
         return <DeletePopover _id={row._id} handleDelete={handleDeleteUser} />;
       },
     },
   ];
 
   const paginationComponentOptions = {
-    rowsPerPageText: 'Rows per page',
-    rangeSeparatorText: 'of',
+    rowsPerPageText: "Rows per page",
+    rangeSeparatorText: "of",
     selectAllRowsItem: true,
   };
 
   const handleSearch = (e: { target: { value: any } }) => {
     setLoading(true);
-    const filteredItems = warranties.filter((row: { phone: string | any[] }) => {
-      return row.phone.includes(e.target.value);
-    });
+    const filteredItems = warranties.filter(
+      (row: { phone: string | any[] }) => {
+        return row.phone.includes(e.target.value);
+      }
+    );
     setItems(filteredItems);
     setLoading(false);
   };
@@ -213,10 +220,10 @@ export default function Products({
     {
       when: (row: { expiryDate: number }) => row.expiryDate < Date.now(),
       style: {
-        backgroundColor: 'rgb(210 35 19 / 90%)',
-        color: 'white',
-        '&:hover': {
-          cursor: 'not-allowed',
+        backgroundColor: "rgb(210 35 19 / 90%)",
+        color: "white",
+        "&:hover": {
+          cursor: "not-allowed",
         },
       },
     },
@@ -247,9 +254,13 @@ export default function Products({
             </div>
             <div className="self-end flex gap-10">
               <AddUserModal refreshData={refreshData} />
-              <Modal products={products} refreshData={refreshData} currentUser={user} />
+              <Modal
+                products={products}
+                refreshData={refreshData}
+                currentUser={user}
+              />
               <Button size="sm" onClick={handleSignOut}>
-                Sign Out
+                {user.name} / Sign Out
               </Button>
             </div>
           </div>
@@ -264,7 +275,8 @@ export default function Products({
             striped
             highlightOnHover
             pointerOnHover
-            paginationComponentOptions={paginationComponentOptions}></DataTable>
+            paginationComponentOptions={paginationComponentOptions}
+          ></DataTable>
           <div className="self-start w-[250px]">
             <Input
               size="sm"
@@ -287,7 +299,8 @@ export default function Products({
             pointerOnHover
             // @ts-ignore
             conditionalRowStyles={conditionalRowStyles}
-            paginationComponentOptions={paginationComponentOptions}></DataTable>
+            paginationComponentOptions={paginationComponentOptions}
+          ></DataTable>
         </div>
       ) : (
         <div className="">
@@ -303,7 +316,11 @@ export default function Products({
               />
             </div>
             <div className="self-end flex gap-10">
-              <Modal products={products} refreshData={refreshData} currentUser={user} />
+              <Modal
+                products={products}
+                refreshData={refreshData}
+                currentUser={user}
+              />
               <Button size="sm" onClick={handleSignOut}>
                 Sign Out
               </Button>
@@ -321,39 +338,49 @@ export default function Products({
             pointerOnHover
             // @ts-ignore
             conditionalRowStyles={conditionalRowStyles}
-            paginationComponentOptions={paginationComponentOptions}></DataTable>
+            paginationComponentOptions={paginationComponentOptions}
+          ></DataTable>
         </div>
       )}
     </div>
   );
 }
 
-export async function getServerSideProps(context: GetSessionParams | undefined) {
+export async function getServerSideProps(
+  context: GetSessionParams | undefined
+) {
   try {
     const client = await clientPromise;
-    const db = client.db('yatoam');
+    const db = client.db("yatoam");
     const session = await getSession(context);
     let users: Document[] = [];
-    let warrantiesFilter = { 'owner.id': session?.user.id };
+    let warrantiesFilter = { "owner.id": session?.user.id };
 
     if (!session?.user) {
       // Redirect or handle the case when the user is not authenticated
       return {
         redirect: {
-          destination: '/auth/signin', // Redirect to your login page
+          destination: "/auth/signin", // Redirect to your login page
           permanent: false,
         },
       };
     }
 
-    if (session?.user?.username === 'admin') {
-      users = await db.collection('users').find({}).project({ hashedPassword: 0 }).toArray();
+    if (session?.user?.username === "admin") {
+      users = await db
+        .collection("users")
+        .find({})
+        .project({ hashedPassword: 0 })
+        .toArray();
       // @ts-ignore
       warrantiesFilter = {};
     }
 
-    const products = await db.collection('products').find({}).toArray();
-    const warranties = await db.collection('warranties').find(warrantiesFilter).toArray();
+    const products = await db.collection("products").find({}).toArray();
+    const warranties = await db
+      .collection("warranties")
+      .find(warrantiesFilter)
+      .toArray();
 
     return {
       props: {
