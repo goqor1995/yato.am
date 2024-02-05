@@ -15,7 +15,7 @@ export default function Products() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>();
   const [products, setProducts] = useState([]);
   const [warranties, setWarranties] = useState([]);
   const [items, setItems] = useState(warranties);
@@ -357,7 +357,7 @@ export default function Products() {
               <div className="self-end flex gap-10">
                 <Modal products={products} refreshData={refreshData} currentUser={user} />
                 <Button size="sm" onClick={handleSignOut}>
-                  Sign Out
+                  {user.name} / Sign Out
                 </Button>
               </div>
             </div>
