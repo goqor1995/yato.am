@@ -16,7 +16,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case 'GET':
       try {
-        const result = await db.collection('warranties').find({}).toArray();
+        let warrantiesFilter = { 'owner.id': session?.user.id };
+        if (session?.user?.username === 'admin') {
+          // @ts-ignore
+          warrantiesFilter = {};
+        }
+        const result = await db.collection('warranties').find(warrantiesFilter).toArray();
         res.json(result);
       } catch (error) {
         res.json(error);

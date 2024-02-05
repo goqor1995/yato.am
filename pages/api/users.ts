@@ -17,8 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (req.method) {
     case 'GET':
       try {
-        const result = await db.collection('users').find({}).toArray();
-        res.json(result);
+        if (session?.user?.username === 'admin') {
+          const result = await db.collection('users').find({}).project({ hashedPassword: 0 }).toArray();
+          res.json(result);
+        } else {
+          res.json([]);
+        }
       } catch (error) {
         res.json(error);
       }
