@@ -15,6 +15,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   switch (req.method) {
+    case 'GET':
+      try {
+        const result = await db.collection('users').find({}).toArray();
+        res.json(result);
+      } catch (error) {
+        res.json(error);
+      }
+      break;
     case 'POST':
       try {
         const { name, username, password } = req.body;
