@@ -12,14 +12,14 @@ import DeletePopover from '../components/DeletePopover';
 import FilterButton from '../components/FilterButton';
 
 export default function Products() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [user, setUser] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [warranties, setWarranties] = useState([]);
-  const [items, setItems] = useState(warranties);
-  const [registeredUsers, setRegisteredUsers] = useState(users);
+  const [isAdmin, setIsAdmin] = useState<any>(false);
+  const [loading, setLoading] = useState<any>(false);
+  const [users, setUsers] = useState<any>([]);
+  const [user, setUser] = useState<any>(null);
+  const [products, setProducts] = useState<any>([]);
+  const [warranties, setWarranties] = useState<any>([]);
+  const [items, setItems] = useState<any>(warranties);
+  const [registeredUsers, setRegisteredUsers] = useState<any>(users);
 
   const { data: session } = useSession({
     required: true,
@@ -357,7 +357,7 @@ export default function Products() {
               <div className="self-end flex gap-10">
                 <Modal products={products} refreshData={refreshData} currentUser={user} />
                 <Button size="sm" onClick={handleSignOut}>
-                  Sign Out
+                  {user.name} / Sign Out
                 </Button>
               </div>
             </div>
@@ -379,55 +379,3 @@ export default function Products() {
     </div>
   );
 }
-
-// export async function getServerSideProps(
-//   context: GetSessionParams | undefined
-// ) {
-//   try {
-//     const client = await clientPromise;
-//     const db = client.db("yatoam");
-//     const session = await getSession(context);
-//     let users: Document[] = [];
-//     let warrantiesFilter = { "owner.id": session?.user.id };
-
-//     if (!session?.user) {
-//       // Redirect or handle the case when the user is not authenticated
-//       return {
-//         redirect: {
-//           destination: "/auth/signin", // Redirect to your login page
-//           permanent: false,
-//         },
-//       };
-//     }
-
-//     if (session?.user?.username === "admin") {
-//       users = await db
-//         .collection("users")
-//         .find({})
-//         .project({ hashedPassword: 0 })
-//         .toArray();
-//       // @ts-ignore
-//       warrantiesFilter = {};
-//     }
-
-//     const products = await db.collection("products").find({}).toArray();
-//     const warranties = await db
-//       .collection("warranties")
-//       .find(warrantiesFilter)
-//       .toArray();
-
-//     return {
-//       props: {
-//         user: JSON.parse(JSON.stringify(session?.user)),
-//         users: JSON.parse(JSON.stringify(users)),
-//         products: JSON.parse(JSON.stringify(products)),
-//         warranties: JSON.parse(JSON.stringify(warranties)),
-//       },
-//     };
-//   } catch (e) {
-//     console.error(e);
-//     return {
-//       props: { user: [], users: [], products: [], warranties: [] },
-//     };
-//   }
-// }
