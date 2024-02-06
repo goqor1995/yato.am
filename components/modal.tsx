@@ -10,6 +10,10 @@ import {
   useDisclosure,
   Input,
   Spinner,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 import { PlusIcon } from "./icons/PlusIcon";
 import SearchBar from "./searchbar";
@@ -29,6 +33,14 @@ export default function AddWarantyModal({
   const [phone, setPhone] = useState("");
   const [owner, setOwner] = useState(currentUser);
   const [loading, setLoading] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState(
+    new Set(["Երաշխիքի ժամկետ"])
+  );
+
+  const selectedValue = React.useMemo(
+    () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
+    [selectedKeys]
+  );
 
   const handleSearch = (SKU: Key) => {
     if (!SKU) return;
@@ -60,7 +72,10 @@ export default function AddWarantyModal({
           SKU: sku,
           phone,
           owner,
-          expiryDate: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          expiryDate:
+            selectedValue === "6 Ամիս"
+              ? Date.now() + 1000 * 60 * 60 * 24 * 183
+              : Date.now() + 1000 * 60 * 60 * 24 * 385,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         }),
@@ -99,6 +114,35 @@ export default function AddWarantyModal({
                     variant="bordered"
                     onChange={handlePhone}
                   />
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button variant="bordered" className="capitalize">
+                        {selectedValue}
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Single selection example"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                      selectedKeys={selectedKeys}
+                      //@ts-ignore
+                      onSelectionChange={setSelectedKeys}
+                    >
+                      <DropdownItem
+                        className="w-[364px] text-center"
+                        key="6 Ամիս"
+                      >
+                        6 Ամիս
+                      </DropdownItem>
+                      <DropdownItem
+                        className="w-[364px] text-center"
+                        key="12 Ամիս"
+                      >
+                        12 Ամիս
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
                 </ModalBody>
                 <ModalFooter>
                   <Button

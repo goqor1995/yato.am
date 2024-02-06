@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { name, username, password } = req.body;
 
         if (!name || !username || !password) {
-          return res.status(400).json({ error: 'Missing required fields' });
+          return res.status(400).json({ error: 'Լրացրեք բոլոր դաշտերը' });
         }
 
         await db.collection('users').createIndex({ username: 1 }, { unique: true });
@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(201).json(result);
       } catch (error: any) {
         if (error.code === 11000) {
-          res.status(409).json({ error: 'User already exists' });
+          res.status(409).json({ error: 'Օգտատերն արդեն կա' });
         } else {
           res.status(400).json({ error: error });
         }
