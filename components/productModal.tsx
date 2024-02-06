@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Key } from "@react-types/shared";
 import {
   Modal,
   ModalContent,
@@ -10,13 +9,8 @@ import {
   useDisclosure,
   Input,
   Spinner,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
 } from "@nextui-org/react";
 import { PlusIcon } from "./icons/PlusIcon";
-import SearchBar from "./searchbar";
 
 export default function AddProductModal({ refreshData }: { refreshData: any }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

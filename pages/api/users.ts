@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'Հարկավոր է գրանցվել' });
   }
 
   switch (req.method) {
@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       break;
 
     default:
-      res.status(405).json({ message: 'Method not allowed' });
+      res.status(405).json({ message: 'Գործողությունը հնարավոր չէ կատարել' });
       break;
   }
 }
