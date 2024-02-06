@@ -1,19 +1,35 @@
 import React, { useEffect, useState } from "react";
-import moment from "moment";
 import DataTable from "react-data-table-component";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import { Input, Button, Spinner } from "@nextui-org/react";
 import { SearchIcon } from "../components/icons/SearchIcon";
-import Modal from "../components/modal";
 import AddProductModal from "../components/productModal";
 import DeletePopover from "../components/DeletePopover";
-import { PlusIcon } from "../components/icons/PlusIcon";
 
 export default function Products() {
+  const [isAdmin, setIsAdmin] = useState<any>(false);
   const [loading, setLoading] = useState<any>(false);
   const [products, setProducts] = useState<any>([]);
   const [items, setItems] = useState<any>(products);
+  const [user, setUser] = useState<any>(null);
+
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      window.location.href = "/auth/signin";
+    },
+  });
+
+  useEffect(() => {
+    if (!session) return;
+    setUser(session.user);
+
+    return () => {
+      // Cleanup function
+    };
+  }, [session]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -31,6 +47,14 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    // @ts-ignore
+    if (user?.username === "admin") {
+      setIsAdmin(true);
+    }
+  }, [user]);
 
   const router = useRouter();
   // Call this function whenever you want to
@@ -115,7 +139,7 @@ export default function Products() {
     },
   ];
 
-  return (
+  return isAdmin ? (
     <div className="container">
       <Head>
         <title>Yato.am - Products</title>
@@ -162,5 +186,5 @@ export default function Products() {
         </div>
       )}
     </div>
-  );
+  ) : null;
 }
