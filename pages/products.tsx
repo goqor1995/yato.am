@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { Input, Button, Spinner } from "@nextui-org/react";
-import { SearchIcon } from "../components/icons/SearchIcon";
-import AddProductModal from "../components/productModal";
-import DeletePopover from "../components/DeletePopover";
+import React, { useEffect, useState } from 'react';
+import DataTable from 'react-data-table-component';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import { Input, Button, Spinner } from '@nextui-org/react';
+import { SearchIcon } from '../components/icons/SearchIcon';
+import AddProductModal from '../components/productModal';
+import DeletePopover from '../components/DeletePopover';
 
 export default function Products() {
   const [isAdmin, setIsAdmin] = useState<any>(false);
@@ -18,7 +18,7 @@ export default function Products() {
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
-      window.location.href = "/auth/signin";
+      window.location.href = '/auth/signin';
     },
   });
 
@@ -34,7 +34,7 @@ export default function Products() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/products");
+      const res = await fetch('/api/products');
       const data = await res.json();
       setProducts(data);
       setItems(data);
@@ -51,7 +51,7 @@ export default function Products() {
   useEffect(() => {
     if (!user) return;
     // @ts-ignore
-    if (user?.username === "admin") {
+    if (user?.username === 'admin') {
       setIsAdmin(true);
     }
   }, [user]);
@@ -61,27 +61,26 @@ export default function Products() {
   // refresh props!
   const refreshData = () => {
     router.reload();
-    // router.replace(router.asPath);
   };
 
   const handleRedirect = async () => {
     setLoading(true);
     // Sign out and redirect to login page
-    await router.push("/");
+    await router.push('/');
     setLoading(false);
   };
 
   const handleDeleteProduct = async (id: string) => {
     setLoading(true);
     try {
-      await fetch("/api/products", {
-        method: "DELETE",
+      await fetch('/api/products', {
+        method: 'DELETE',
         body: JSON.stringify({
           _id: id,
         }),
         headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
         },
       });
 
@@ -94,26 +93,23 @@ export default function Products() {
 
   const columns = [
     {
-      name: "Ապրանքի անուն",
+      name: 'Ապրանքի անուն',
       selector: (row: { Name: any }) => row.Name,
-      // sortable: true,
-      width: "40%",
+      width: '40%',
     },
     {
-      name: "Արտիկուլ",
+      name: 'Արտիկուլ',
       selector: (row: { SKU: any }) => row.SKU,
     },
     {
-      name: "Ջնջել",
-      selector: (row: { _id: string }) => (
-        <DeletePopover _id={row._id} handleDelete={handleDeleteProduct} />
-      ),
+      name: 'Ջնջել',
+      selector: (row: { _id: string }) => <DeletePopover _id={row._id} handleDelete={handleDeleteProduct} />,
     },
   ];
 
   const paginationComponentOptions = {
-    rowsPerPageText: "Տողերի քանակն էջում",
-    rangeSeparatorText: "|",
+    rowsPerPageText: 'Տողերի քանակն էջում',
+    rangeSeparatorText: '|',
     selectAllRowsItem: true,
   };
 
@@ -125,19 +121,6 @@ export default function Products() {
     setItems(filteredItems);
     setLoading(false);
   };
-
-  const conditionalRowStyles = [
-    {
-      when: (row: { expiryDate: number }) => row.expiryDate < Date.now(),
-      style: {
-        backgroundColor: "rgb(210 35 19 / 90%)",
-        color: "white",
-        "&:hover": {
-          cursor: "not-allowed",
-        },
-      },
-    },
-  ];
 
   return isAdmin ? (
     <div className="container">
@@ -173,16 +156,14 @@ export default function Products() {
             // @ts-ignore
             columns={columns}
             data={items}
+            noDataComponent="Տվյալներ չկան"
             pagination
             responsive
             fixedHeader
             striped
             highlightOnHover
             pointerOnHover
-            // @ts-ignore
-            conditionalRowStyles={conditionalRowStyles}
-            paginationComponentOptions={paginationComponentOptions}
-          ></DataTable>
+            paginationComponentOptions={paginationComponentOptions}></DataTable>
         </div>
       )}
     </div>

@@ -10,7 +10,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
-    return res.status(401).json({ message: 'Հարկավոր է գրանցվել' });
+    return res.status(401).json({ message: 'Հարկավոր է մուտք գործել' });
   }
 
   switch (req.method) {

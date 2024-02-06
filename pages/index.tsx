@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import moment from "moment";
-import DataTable from "react-data-table-component";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { Input, Button, Spinner } from "@nextui-org/react";
-import { signOut, useSession } from "next-auth/react";
-import { SearchIcon } from "../components/icons/SearchIcon";
-import Modal from "../components/modal";
-import AddUserModal from "../components/registerModal";
-import DeletePopover from "../components/DeletePopover";
-import FilterButton from "../components/FilterButton";
+import React, { useEffect, useState } from 'react';
+import moment from 'moment';
+import DataTable from 'react-data-table-component';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { Input, Button, Spinner } from '@nextui-org/react';
+import { signOut, useSession } from 'next-auth/react';
+import { SearchIcon } from '../components/icons/SearchIcon';
+import Modal from '../components/modal';
+import AddUserModal from '../components/registerModal';
+import DeletePopover from '../components/DeletePopover';
+import FilterButton from '../components/FilterButton';
 
 export default function Products() {
   const [isAdmin, setIsAdmin] = useState<any>(false);
@@ -24,7 +24,7 @@ export default function Products() {
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
-      window.location.href = "/auth/signin";
+      window.location.href = '/auth/signin';
     },
   });
 
@@ -40,7 +40,7 @@ export default function Products() {
   const fetchWarranties = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/warranties");
+      const res = await fetch('/api/warranties');
       const data = await res.json();
       setWarranties(data);
       setItems(data);
@@ -53,7 +53,7 @@ export default function Products() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/products");
+      const res = await fetch('/api/products');
       const data = await res.json();
       setProducts(data);
       setLoading(false);
@@ -65,7 +65,7 @@ export default function Products() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/users");
+      const res = await fetch('/api/users');
       const data = await res.json();
       setUsers(data);
       setRegisteredUsers(data);
@@ -83,7 +83,7 @@ export default function Products() {
 
   const handleFilter = (owner: { username: string; _id: any }) => {
     setLoading(true);
-    if (owner.username === "admin") {
+    if (owner.username === 'admin') {
       setLoading(false);
       return setItems(warranties);
     }
@@ -98,7 +98,7 @@ export default function Products() {
   useEffect(() => {
     if (!user) return;
     // @ts-ignore
-    if (user?.username === "admin") {
+    if (user?.username === 'admin') {
       setIsAdmin(true);
     }
   }, [user]);
@@ -114,28 +114,28 @@ export default function Products() {
   const handleSignOut = async () => {
     setLoading(true);
     // Sign out and redirect to login page
-    await signOut({ callbackUrl: "/auth/signin" });
+    await signOut({ callbackUrl: '/auth/signin' });
     setLoading(false);
   };
 
   const handleRedirect = async () => {
     setLoading(true);
     // Sign out and redirect to login page
-    await router.push("/products");
+    await router.push('/products');
     setLoading(false);
   };
 
   const handleDeleteUser = async (userId: string) => {
     setLoading(true);
     try {
-      await fetch("/api/users", {
-        method: "DELETE",
+      await fetch('/api/users', {
+        method: 'DELETE',
         body: JSON.stringify({
           _id: userId,
         }),
         headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
         },
       });
       // You might want to refresh the list of users after deletion
@@ -149,14 +149,14 @@ export default function Products() {
   const handleDeleteWarranty = async (id: string) => {
     setLoading(true);
     try {
-      await fetch("/api/warranties", {
-        method: "DELETE",
+      await fetch('/api/warranties', {
+        method: 'DELETE',
         body: JSON.stringify({
           _id: id,
         }),
         headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
         },
       });
 
@@ -169,95 +169,79 @@ export default function Products() {
 
   const columns = [
     {
-      name: "Ապրանքի անուն",
+      name: 'Ապրանքի անուն',
       selector: (row: { Name: any }) => row.Name,
       // sortable: true,
-      width: "40%",
+      width: '40%',
     },
     {
-      name: "Արտիկուլ",
+      name: 'Արտիկուլ',
       selector: (row: { SKU: any }) => row.SKU,
     },
     {
-      name: "Հեռախոս",
+      name: 'Հեռախոս',
       selector: (row: { phone: any }) => row.phone,
       sortable: true,
     },
     {
-      name: "Մինչև",
+      name: 'Մինչև',
       selector: (row: { expiryDate: any }) =>
-        moment(new Date(Number(row.expiryDate))).format("DD/MM/YYYY HH:mm:ss"),
+        moment(new Date(Number(row.expiryDate)))
+          .endOf('day')
+          .format('DD/MM/YYYY'),
       sortable: true,
     },
     {
-      name: "Կարգավիճակ",
+      name: 'Կարգավիճակ',
       selector: (row: { expiryDate: number }) =>
         row.expiryDate < Date.now()
-          ? "Ժամկետանց"
+          ? 'Ժամկետանց'
           : row.expiryDate - Date.now() < 2629746000
-          ? "Լրանում է 1 ամսից"
-          : "Ակտիվ",
+          ? 'Լրանում է 1 ամսից'
+          : 'Ակտիվ',
       sortable: true,
-      // conditionalCellStyles: [
-      //   {
-      //     when: (row: { expiryDate: number }) => row.expiryDate < Date.now(),
-      //     style: {
-      //       backgroundColor: 'rgb(210 35 19 / 90%)',
-      //       color: 'white',
-      //       '&:hover': {
-      //         cursor: 'not-allowed',
-      //       },
-      //     },
-      //   },
-      // ],
     },
     {
-      name: "Ջնջել",
-      selector: (row: { _id: string }) => (
-        <DeletePopover _id={row._id} handleDelete={handleDeleteWarranty} />
-      ),
+      name: 'Ջնջել',
+      selector: (row: { _id: string }) => <DeletePopover _id={row._id} handleDelete={handleDeleteWarranty} />,
     },
   ];
 
   const userColumns = [
     {
-      name: "Անուն",
+      name: 'Անուն',
       selector: (row: { name: string }) => row.name,
       // sortable: true,
-      width: "40%",
+      width: '40%',
     },
     {
-      name: "Օգտանուն",
+      name: 'Օգտանուն',
       selector: (row: { username: string }) => row.username,
     },
     {
-      name: "Ֆիլտրել",
-      selector: (row: { _id: string; username: string }) => (
-        <FilterButton user={row} handleFilter={handleFilter} />
-      ),
+      name: 'Ֆիլտրել',
+      selector: (row: { _id: string; username: string }) => <FilterButton user={row} handleFilter={handleFilter} />,
     },
     {
-      name: "Ջնջել",
+      name: 'Ջնջել',
       selector: (row: { username: string; _id: string }) => {
-        if (row.username === "admin") return;
+        if (row.username === 'admin') return;
         return <DeletePopover _id={row._id} handleDelete={handleDeleteUser} />;
       },
     },
   ];
 
   const paginationComponentOptions = {
-    rowsPerPageText: "Տողերի քանակն էջում",
-    rangeSeparatorText: "|",
+    rowsPerPageText: 'Տողերի քանակն էջում',
+    rangeSeparatorText: '|',
     selectAllRowsItem: true,
   };
 
   const handleSearch = (e: { target: { value: any } }) => {
     setLoading(true);
-    const filteredItems = warranties.filter(
-      (row: { phone: string | any[] }) => {
-        return row.phone.includes(e.target.value);
-      }
-    );
+    const filteredItems = warranties.filter((row: { phone: string | any[] }) => {
+      return row.phone.includes(e.target.value);
+    });
     setItems(filteredItems);
     setLoading(false);
   };
@@ -275,10 +259,10 @@ export default function Products() {
     {
       when: (row: { expiryDate: number }) => row.expiryDate < Date.now(),
       style: {
-        backgroundColor: "rgb(210 35 19 / 90%)",
-        color: "white",
-        "&:hover": {
-          cursor: "not-allowed",
+        backgroundColor: 'rgb(210 35 19 / 90%)',
+        color: 'white',
+        '&:hover': {
+          cursor: 'not-allowed',
         },
       },
     },
@@ -313,11 +297,7 @@ export default function Products() {
               </div>
               <div className="self-end flex gap-10">
                 <AddUserModal refreshData={refreshData} />
-                <Modal
-                  products={products}
-                  refreshData={refreshData}
-                  currentUser={user}
-                />
+                <Modal products={products} refreshData={refreshData} currentUser={user} />
                 <Button size="sm" onClick={handleRedirect}>
                   Ապրանքներ
                 </Button>
@@ -331,14 +311,14 @@ export default function Products() {
               // @ts-ignore
               columns={userColumns}
               data={registeredUsers}
+              noDataComponent="Տվյալներ չկան"
               pagination
               responsive
               fixedHeader
               striped
               highlightOnHover
               pointerOnHover
-              paginationComponentOptions={paginationComponentOptions}
-            ></DataTable>
+              paginationComponentOptions={paginationComponentOptions}></DataTable>
             <div className="self-start w-[400px]">
               <Input
                 size="sm"
@@ -353,6 +333,7 @@ export default function Products() {
               // @ts-ignore
               columns={columns}
               data={items}
+              noDataComponent="Տվյալներ չկան"
               pagination
               responsive
               fixedHeader
@@ -361,8 +342,7 @@ export default function Products() {
               pointerOnHover
               // @ts-ignore
               conditionalRowStyles={conditionalRowStyles}
-              paginationComponentOptions={paginationComponentOptions}
-            ></DataTable>
+              paginationComponentOptions={paginationComponentOptions}></DataTable>
           </div>
         ) : (
           <div className="">
@@ -378,11 +358,7 @@ export default function Products() {
                 />
               </div>
               <div className="self-end flex gap-10">
-                <Modal
-                  products={products}
-                  refreshData={refreshData}
-                  currentUser={user}
-                />
+                <Modal products={products} refreshData={refreshData} currentUser={user} />
                 <Button size="sm" onClick={handleSignOut}>
                   {user.name} / Ելք
                 </Button>
@@ -400,8 +376,7 @@ export default function Products() {
               pointerOnHover
               // @ts-ignore
               conditionalRowStyles={conditionalRowStyles}
-              paginationComponentOptions={paginationComponentOptions}
-            ></DataTable>
+              paginationComponentOptions={paginationComponentOptions}></DataTable>
           </div>
         ))}
     </div>
