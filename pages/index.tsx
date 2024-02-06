@@ -4,13 +4,12 @@ import DataTable from "react-data-table-component";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Input, Button, Spinner } from "@nextui-org/react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { SearchIcon } from "../components/icons/SearchIcon";
 import Modal from "../components/modal";
 import AddUserModal from "../components/registerModal";
 import DeletePopover from "../components/DeletePopover";
 import FilterButton from "../components/FilterButton";
-import { PlusIcon } from "../components/icons/PlusIcon";
 
 export default function Products() {
   const [isAdmin, setIsAdmin] = useState<any>(false);
@@ -319,12 +318,8 @@ export default function Products() {
                   refreshData={refreshData}
                   currentUser={user}
                 />
-                <Button
-                  size="sm"
-                  endContent={<PlusIcon />}
-                  onClick={handleRedirect}
-                >
-                  Ավելացնել Ապրանք
+                <Button size="sm" onClick={handleRedirect}>
+                  Ապրանքներ
                 </Button>
                 <Button size="sm" onClick={handleSignOut}>
                   {user.name} / Ելք
