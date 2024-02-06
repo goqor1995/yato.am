@@ -10,6 +10,7 @@ import Modal from "../components/modal";
 import AddUserModal from "../components/registerModal";
 import DeletePopover from "../components/DeletePopover";
 import FilterButton from "../components/FilterButton";
+import { PlusIcon } from "../components/icons/PlusIcon";
 
 export default function Products() {
   const [isAdmin, setIsAdmin] = useState<any>(false);
@@ -115,6 +116,13 @@ export default function Products() {
     setLoading(true);
     // Sign out and redirect to login page
     await signOut({ callbackUrl: "/auth/signin" });
+    setLoading(false);
+  };
+
+  const handleRedirect = async () => {
+    setLoading(true);
+    // Sign out and redirect to login page
+    await router.push("/products");
     setLoading(false);
   };
 
@@ -311,6 +319,13 @@ export default function Products() {
                   refreshData={refreshData}
                   currentUser={user}
                 />
+                <Button
+                  size="sm"
+                  endContent={<PlusIcon />}
+                  onClick={handleRedirect}
+                >
+                  Ավելացնել Ապրանք
+                </Button>
                 <Button size="sm" onClick={handleSignOut}>
                   {user.name} / Ելք
                 </Button>
