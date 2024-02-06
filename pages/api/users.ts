@@ -11,18 +11,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
-    return res.status(401).json({ message: 'Հարկավոր է գրանցվել' });
+    return res.status(401).json({ message: 'Հարկավոր է մուտք գործել' });
+  }
+
+  if (session?.user?.username !== 'admin') {
+    return res.status(401).json({ message: 'Դուք չունեք ադմինի իրավունքներ' });
   }
 
   switch (req.method) {
     case 'GET':
       try {
-        if (session?.user?.username === 'admin') {
-          const result = await db.collection('users').find({}).project({ hashedPassword: 0 }).toArray();
-          res.json(result);
-        } else {
-          res.json([]);
-        }
+        const result = await db.collection('users').find({}).project({ hashedPassword: 0 }).toArray();
+        res.json(result);
       } catch (error) {
         res.json(error);
       }
