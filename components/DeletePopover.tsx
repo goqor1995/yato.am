@@ -8,7 +8,7 @@ export default function DeletePopover({ _id, handleDelete }: { _id: string; hand
       {(titleProps) => (
         <div className="px-1 py-2 w-full">
           <Button size="sm" color="danger" variant="ghost" className="w-full" onClick={() => handleDelete(_id)}>
-            Delete
+            Ջնջել
           </Button>
         </div>
       )}

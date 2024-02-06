@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
-import { Spinner, Button } from '@nextui-org/react';
+import React, { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
+import { Spinner, Button } from "@nextui-org/react";
 
 export default function Login() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [username, setUsername] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [error, setError] = useState<string>();
@@ -18,11 +18,11 @@ export default function Login() {
 
     setLoading(true);
     if (!name || !username || !password) {
-      setError('All fields are necessary');
+      setError("All fields are necessary");
       return;
     }
 
-    const signInResponse = await signIn('credentials', {
+    const signInResponse = await signIn("credentials", {
       name: name,
       username: username,
       password: password,
@@ -30,14 +30,14 @@ export default function Login() {
     });
 
     if (signInResponse?.error) {
-      setError('Wrong username or password');
+      setError("Wrong username or password");
     } else {
       // Check the session after signing in
       const session = await getSession();
       if (session) {
-        router.push('/');
+        router.push("/");
       } else {
-        setError('Wrong username or password');
+        setError("Wrong username or password");
       }
     }
     setLoading(false);
@@ -59,12 +59,15 @@ export default function Login() {
           <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-slate-200 border-0">
             <div className="flex-auto px-10 py-10 pt-0">
               <div className="text-slate-400 text-center mb-3 font-bold">
-                <small>Sign in with credentials</small>
+                <small>Մուտք գործել մուտքային տվյալներով</small>
               </div>
               <form onSubmit={handleSignIn}>
                 <div className="relative w-full mb-3">
-                  <label className="block uppercase text-slate-600 text-xs font-bold mb-2" htmlFor="grid-password">
-                    Username
+                  <label
+                    className="block uppercase text-slate-600 text-xs font-bold mb-2"
+                    htmlFor="grid-password"
+                  >
+                    Օգտանուն
                   </label>
                   <input
                     type="text"
@@ -75,8 +78,11 @@ export default function Login() {
                 </div>
 
                 <div className="relative w-full mb-3">
-                  <label className="block uppercase text-slate-600 text-xs font-bold mb-2" htmlFor="grid-password">
-                    Password
+                  <label
+                    className="block uppercase text-slate-600 text-xs font-bold mb-2"
+                    htmlFor="grid-password"
+                  >
+                    Գաղտնաբառ
                   </label>
                   <input
                     type="password"
@@ -88,11 +94,16 @@ export default function Login() {
                 <div className="text-center mt-6">
                   <Button
                     className="bg-slate-800 text-white active:bg-slate-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                    type="submit">
-                    Sign In
+                    type="submit"
+                  >
+                    Մուտք
                   </Button>
                 </div>
-                {error && <div className="text-red-500 w-fit text-sm py-1 px-3 rounded-md mt-2">{error}</div>}
+                {error && (
+                  <div className="text-red-500 w-fit text-sm py-1 px-3 rounded-md mt-2">
+                    {error}
+                  </div>
+                )}
               </form>
             </div>
           </div>

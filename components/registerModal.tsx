@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -9,41 +9,51 @@ import {
   useDisclosure,
   Input,
   Spinner,
-} from '@nextui-org/react';
-import { PlusIcon } from '../components/icons/PlusIcon';
+} from "@nextui-org/react";
+import { PlusIcon } from "../components/icons/PlusIcon";
 
-export default function AddUserModal({ refreshData }: { refreshData: () => void }) {
+export default function AddUserModal({
+  refreshData,
+}: {
+  refreshData: () => void;
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [username, setUsername] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleUsername = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handleUsername = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setUsername(e.target.value);
   };
 
-  const handleName = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handleName = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setName(e.target.value);
   };
 
-  const handlePassword = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handlePassword = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setPassword(e.target.value);
   };
 
   const handleAdd = async (onClose: { (): void; (): void }) => {
     setLoading(true);
     try {
-      await fetch('/api/users', {
-        method: 'POST',
+      await fetch("/api/users", {
+        method: "POST",
         body: JSON.stringify({
           name: name,
           username: username,
           password: password,
         }),
         headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
       });
       onClose();
@@ -57,21 +67,30 @@ export default function AddUserModal({ refreshData }: { refreshData: () => void 
   return (
     <>
       <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
-        Add User
+        Ավելացնել Օգտատեր
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
             <form>
               <>
-                <ModalHeader className="flex flex-col gap-1">Add User</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">
+                  Ավելացնել Օգտատեր
+                </ModalHeader>
                 <ModalBody>
-                  <Input required isRequired label="Name" placeholder="Name" variant="bordered" onChange={handleName} />
                   <Input
                     required
                     isRequired
-                    label="Username"
-                    placeholder="Username"
+                    label="Անուն"
+                    placeholder="Անուն"
+                    variant="bordered"
+                    onChange={handleName}
+                  />
+                  <Input
+                    required
+                    isRequired
+                    label="Օգտանուն"
+                    placeholder="Օգտանուն"
                     variant="bordered"
                     onChange={handleUsername}
                   />
@@ -79,8 +98,8 @@ export default function AddUserModal({ refreshData }: { refreshData: () => void 
                     required
                     isRequired
                     type="password"
-                    label="Password"
-                    placeholder="Password"
+                    label="Գաղտնաբառ"
+                    placeholder="Գաղտնաբառ"
                     variant="bordered"
                     onChange={handlePassword}
                   />
@@ -89,15 +108,20 @@ export default function AddUserModal({ refreshData }: { refreshData: () => void 
                   <Button
                     variant="flat"
                     onPress={() => {
-                      setUsername('');
-                      setName('');
-                      setPassword('');
+                      setUsername("");
+                      setName("");
+                      setPassword("");
                       onClose();
-                    }}>
-                    Close
+                    }}
+                  >
+                    Փակել
                   </Button>
-                  <Button color="primary" type="submit" onPress={() => handleAdd(onClose)}>
-                    Add
+                  <Button
+                    color="primary"
+                    type="submit"
+                    onPress={() => handleAdd(onClose)}
+                  >
+                    Ավելացնել
                   </Button>
                 </ModalFooter>
               </>
