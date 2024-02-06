@@ -73,7 +73,7 @@ export default function Login() {
                     type="text"
                     onChange={handleUsernameInput}
                     className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    placeholder="Username"
+                    placeholder="Օգտանուն"
                   />
                 </div>
 
@@ -88,7 +88,7 @@ export default function Login() {
                     type="password"
                     onChange={handlePasswordInput}
                     className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    placeholder="Password"
+                    placeholder="Գաղտնաբառ"
                   />
                 </div>
                 <div className="text-center mt-6">

@@ -248,7 +248,7 @@ export default function Products() {
 
   const paginationComponentOptions = {
     rowsPerPageText: "Տողերի քանակն էջում",
-    rangeSeparatorText: "of",
+    rangeSeparatorText: "|",
     selectAllRowsItem: true,
   };
 
