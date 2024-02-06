@@ -20,8 +20,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ items, handleSearch }) => {
       isRequired
       isClearable={false}
       variant="bordered"
-      label="Search in All Products"
-      placeholder="Type SKU to search..."
+      label="Փնտրել բոլոր ապրանքների մեջ"
+      placeholder="Գրեք արտիկուլը որոնման համար..."
       defaultItems={items}
       // @ts-ignore
       onKeyDown={(e) => e.continuePropagation()}

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Key } from '@react-types/shared';
+import React, { useState } from "react";
+import { Key } from "@react-types/shared";
 import {
   Modal,
   ModalContent,
@@ -10,9 +10,9 @@ import {
   useDisclosure,
   Input,
   Spinner,
-} from '@nextui-org/react';
-import { PlusIcon } from './icons/PlusIcon';
-import SearchBar from './searchbar';
+} from "@nextui-org/react";
+import { PlusIcon } from "./icons/PlusIcon";
+import SearchBar from "./searchbar";
 
 export default function AddWarantyModal({
   products,
@@ -24,9 +24,9 @@ export default function AddWarantyModal({
   currentUser: any;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [sku, setSku] = useState();
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
   const [owner, setOwner] = useState(currentUser);
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +39,9 @@ export default function AddWarantyModal({
     setSku(filteredItem[0].SKU);
   };
 
-  const handlePhone = (e: { target: { value: React.SetStateAction<string> } }) => {
+  const handlePhone = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setPhone(e.target.value);
   };
 
@@ -51,8 +53,8 @@ export default function AddWarantyModal({
     setLoading(true);
     handleOwner();
     try {
-      await fetch('/api/warranties', {
-        method: 'POST',
+      await fetch("/api/warranties", {
+        method: "POST",
         body: JSON.stringify({
           Name: name,
           SKU: sku,
@@ -63,8 +65,8 @@ export default function AddWarantyModal({
           updatedAt: Date.now(),
         }),
         headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
       });
       onClose();
@@ -77,20 +79,22 @@ export default function AddWarantyModal({
   return (
     <>
       <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
-        Add
+        Ավելացնել Երաշխիք
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
             <form>
               <>
-                <ModalHeader className="flex flex-col gap-1">Add Warranty</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">
+                  Ավելացնել Երաշխիք
+                </ModalHeader>
                 <ModalBody>
                   <SearchBar items={products} handleSearch={handleSearch} />
                   <Input
                     required
                     isRequired
-                    label="Phone Number"
+                    label="Հեռախոսահամար"
                     placeholder="055xxxxxx"
                     variant="bordered"
                     onChange={handlePhone}
@@ -100,13 +104,18 @@ export default function AddWarantyModal({
                   <Button
                     variant="flat"
                     onPress={() => {
-                      setName('');
+                      setName("");
                       onClose();
-                    }}>
-                    Close
+                    }}
+                  >
+                    Փակել
                   </Button>
-                  <Button color="primary" type="submit" onPress={() => handleAdd(onClose)}>
-                    Add
+                  <Button
+                    color="primary"
+                    type="submit"
+                    onPress={() => handleAdd(onClose)}
+                  >
+                    Ավելացնել
                   </Button>
                 </ModalFooter>
               </>
