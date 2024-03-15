@@ -15,7 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (session?.user?.username !== 'admin') {
-    return res.status(401).json({ message: 'Դուք չունեք ադմինի իրավունքներ' });
+    // return res.status(403).json({ message: 'Դուք չունեք ադմինի իրավունքներ' });
+    return res.status(200).json([]);
   }
 
   switch (req.method) {

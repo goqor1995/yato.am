@@ -13,10 +13,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401).json({ message: 'Հարկավոր է մուտք գործել' });
   }
 
-  if (session?.user?.username !== 'admin') {
-    return res.status(401).json({ message: 'Դուք չունեք ադմինի իրավունքներ' });
-  }
-
   switch (req.method) {
     case 'GET':
       try {
