@@ -22,23 +22,24 @@ export default function ResetPasswordModal({
   refreshData: () => void;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handlePassword = (e: {
+  const handleNewPassword = (e: {
     target: { value: React.SetStateAction<string> };
   }) => {
-    setPassword(e.target.value);
+    setNewPassword(e.target.value);
   };
 
   const handleReset = async (onClose: { (): void; (): void }) => {
     setLoading(true);
     try {
-      await fetch("/api/passwordUpdate", {
-        method: "POST",
+      await fetch("/api/users", {
+        method: "PUT",
         body: JSON.stringify({
-          userId: _id,
-          newPassword: password,
+          _id: _id,
+          username: username,
+          newPassword: newPassword,
         }),
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -79,14 +80,14 @@ export default function ResetPasswordModal({
                     label="Մուտքագրեք նոր գաղտնաբառ"
                     placeholder="Գաղտնաբառ"
                     variant="bordered"
-                    onChange={handlePassword}
+                    onChange={handleNewPassword}
                   />
                 </ModalBody>
                 <ModalFooter>
                   <Button
                     variant="flat"
                     onPress={() => {
-                      setPassword("");
+                      setNewPassword("");
                       onClose();
                     }}
                   >
