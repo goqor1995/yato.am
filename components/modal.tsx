@@ -31,6 +31,7 @@ export default function AddWarantyModal({
   const [name, setName] = useState("");
   const [sku, setSku] = useState();
   const [phone, setPhone] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
   const [owner, setOwner] = useState(currentUser);
   const [loading, setLoading] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(
@@ -57,6 +58,12 @@ export default function AddWarantyModal({
     setPhone(e.target.value);
   };
 
+  const handleSerialNumber = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setSerialNumber(e.target.value);
+  };
+
   const handleOwner = () => {
     setOwner(currentUser);
   };
@@ -65,6 +72,26 @@ export default function AddWarantyModal({
     setLoading(true);
     handleOwner();
     try {
+      const currentDate = new Date();
+      let expiryDate;
+
+      if (selectedValue === "6 Ամիս") {
+        expiryDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 6,
+          currentDate.getDate()
+        );
+      } else {
+        expiryDate = new Date(
+          currentDate.getFullYear() + 1,
+          currentDate.getMonth(),
+          currentDate.getDate()
+        );
+      }
+
+      expiryDate.setHours(23, 59, 59, 999);
+      const expiryTime = expiryDate.getTime();
+
       await fetch("/api/warranties", {
         method: "POST",
         body: JSON.stringify({
@@ -72,10 +99,8 @@ export default function AddWarantyModal({
           SKU: sku,
           phone,
           owner,
-          expiryDate:
-            selectedValue === "6 Ամիս"
-              ? Date.now() + 1000 * 60 * 60 * 24 * 183
-              : Date.now() + 1000 * 60 * 60 * 24 * 385,
+          serialNumber,
+          expiryDate: expiryTime,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         }),
@@ -113,6 +138,14 @@ export default function AddWarantyModal({
                     placeholder="055xxxxxx"
                     variant="bordered"
                     onChange={handlePhone}
+                  />
+                  <Input
+                    required
+                    isRequired
+                    label="Հերթական համար"
+                    placeholder="YT-xxxx"
+                    variant="bordered"
+                    onChange={handleSerialNumber}
                   />
                   <Dropdown>
                     <DropdownTrigger>

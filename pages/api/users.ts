@@ -65,6 +65,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       break;
 
+      case 'PUT':
+        try {
+          const { username, newPassword } = req.body;
+  
+          const hashedPassword = await hash(newPassword, 10);
+  
+          await db.collection('users').updateOne(
+            { username },
+            { $set: { hashedPassword } }
+          );
+  
+          res.json({ message: 'Գաղտնաբառը հաջողությամբ թարմացված է' });
+        } catch (error) {
+          res.status(400).json({ error });
+        }
+        break;
+
     default:
       res.status(405).json({ message: 'Գործողությունը հնարավոր չէ կատարել' });
       break;
