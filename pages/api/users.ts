@@ -13,7 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!session) {
     return res.status(401).json({ message: 'Հարկավոր է մուտք գործել' });
   }
-
   if (session?.user?.username !== 'admin') {
     // return res.status(403).json({ message: 'Դուք չունեք ադմինի իրավունքներ' });
     return res.status(200).json([]);
@@ -65,22 +64,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       break;
 
-      case 'PUT':
-        try {
-          const { username, newPassword } = req.body;
+    case 'PUT':
+      try {
+        const { _id, password: newPassword } = req.body;
+        const hashedPassword = await hash(newPassword, 10);
+        await db.collection('users').updateOne(
+          { _id: new ObjectId(_id) }, 
+          { $set: { hashedPassword } }
+        );
   
-          const hashedPassword = await hash(newPassword, 10);
-  
-          await db.collection('users').updateOne(
-            { username },
-            { $set: { hashedPassword } }
-          );
-  
-          res.json({ message: 'Գաղտնաբառը հաջողությամբ թարմացված է' });
-        } catch (error) {
-          res.status(400).json({ error });
-        }
-        break;
+        res.json({ message: 'Գաղտնաբառը հաջողությամբ թարմացված է' });
+      } catch (error) {
+        res.status(400).json({ error });
+      }
+      break;
 
     default:
       res.status(405).json({ message: 'Գործողությունը հնարավոր չէ կատարել' });

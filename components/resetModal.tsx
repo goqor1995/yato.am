@@ -31,7 +31,8 @@ export default function ResetPasswordModal({
     setNewPassword(e.target.value);
   };
 
-  const handleReset = async (onClose: { (): void; (): void }) => {
+  const handleReset = async (e: any, onClose: () => void) => {
+    e.preventDefault();
     setLoading(true);
     try {
       await fetch("/api/users", {
@@ -39,7 +40,7 @@ export default function ResetPasswordModal({
         body: JSON.stringify({
           _id: _id,
           username: username,
-          newPassword: newPassword,
+          password: newPassword,
         }),
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -49,9 +50,12 @@ export default function ResetPasswordModal({
       onClose();
       refreshData();
     } catch (errorMessage: any) {
+      // Consider specifying a more precise error type if possible
       console.error(errorMessage);
+    } finally {
+      // It's safer to call onClose here to ensure it is always called even if an error occurs
+      setLoading(false);
     }
-    onClose();
   };
 
   return (
@@ -67,7 +71,12 @@ export default function ResetPasswordModal({
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
-            <form>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleReset(e, onClose);
+              }}
+            >
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   Փոխել գաղտնաբառը
@@ -93,11 +102,7 @@ export default function ResetPasswordModal({
                   >
                     Փակել
                   </Button>
-                  <Button
-                    color="primary"
-                    type="submit"
-                    onPress={() => handleReset(onClose)}
-                  >
+                  <Button color="primary" type="submit">
                     Հաստատել
                   </Button>
                 </ModalFooter>
