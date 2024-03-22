@@ -142,8 +142,7 @@ export default function AddWarantyModal({
                   <Input
                     required
                     isRequired
-                    label="Հերթական համար"
-                    placeholder="YT-xxxx"
+                    label="Գործարանային համար"
                     variant="bordered"
                     onChange={handleSerialNumber}
                   />
