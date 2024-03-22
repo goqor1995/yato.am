@@ -180,7 +180,7 @@ export default function Products() {
       selector: (row: { SKU: any }) => row.SKU,
     },
     {
-      name: "Հերթ․ համար",
+      name: "Գործ․ համար",
       selector: (row: { serialNumber: any }) => row.serialNumber,
     },
     {
