@@ -3,6 +3,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 import { Spinner, Button } from "@nextui-org/react";
+import PasswordInput from "../../components/PasswordInput";
 
 export default function Login() {
   const [name, setName] = useState("");
@@ -84,12 +85,7 @@ export default function Login() {
                   >
                     Գաղտնաբառ
                   </label>
-                  <input
-                    type="password"
-                    onChange={handlePasswordInput}
-                    className="border-0 px-3 py-3 placeholder-slate-300 text-slate-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                    placeholder="Գաղտնաբառ"
-                  />
+                  <PasswordInput handlePassword={handlePasswordInput} />
                 </div>
                 <div className="text-center mt-6">
                   <Button

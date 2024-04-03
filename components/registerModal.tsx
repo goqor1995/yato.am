@@ -11,6 +11,7 @@ import {
   Spinner,
 } from "@nextui-org/react";
 import { PlusIcon } from "../components/icons/PlusIcon";
+import PasswordInput from "./PasswordInput";
 
 export default function AddUserModal({
   refreshData,
@@ -66,7 +67,7 @@ export default function AddUserModal({
 
   return (
     <>
-      <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
+      <Button size="sm" onClick={onOpen} endContent={<PlusIcon />}>
         Ավելացնել Օգտատեր
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
@@ -94,15 +95,7 @@ export default function AddUserModal({
                     variant="bordered"
                     onChange={handleUsername}
                   />
-                  <Input
-                    required
-                    isRequired
-                    type="password"
-                    label="Գաղտնաբառ"
-                    placeholder="Գաղտնաբառ"
-                    variant="bordered"
-                    onChange={handlePassword}
-                  />
+                  <PasswordInput handlePassword={handlePassword} />
                 </ModalBody>
                 <ModalFooter>
                   <Button

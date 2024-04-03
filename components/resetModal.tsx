@@ -11,6 +11,7 @@ import {
   Spinner,
 } from "@nextui-org/react";
 import { ResetIcon } from "./icons/ResetIcon";
+import PasswordInput from "./PasswordInput";
 
 export default function ResetPasswordModal({
   _id,
@@ -82,15 +83,7 @@ export default function ResetPasswordModal({
                   Փոխել գաղտնաբառը
                 </ModalHeader>
                 <ModalBody>
-                  <Input
-                    required
-                    isRequired
-                    type="password"
-                    label="Մուտքագրեք նոր գաղտնաբառ"
-                    placeholder="Գաղտնաբառ"
-                    variant="bordered"
-                    onChange={handleNewPassword}
-                  />
+                  <PasswordInput handlePassword={handleNewPassword} />
                 </ModalBody>
                 <ModalFooter>
                   <Button

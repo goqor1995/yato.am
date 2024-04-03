@@ -118,7 +118,7 @@ export default function AddWarantyModal({
 
   return (
     <>
-      <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
+      <Button size="sm" onClick={onOpen} endContent={<PlusIcon />}>
         Ավելացնել Երաշխիք
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">

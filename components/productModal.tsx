@@ -53,7 +53,7 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
 
   return (
     <>
-      <Button size="sm" onPress={onOpen} endContent={<PlusIcon />}>
+      <Button size="sm" onClick={onOpen} endContent={<PlusIcon />}>
         Ավելացնել Ապրանք
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
