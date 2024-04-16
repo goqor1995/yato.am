@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Key } from "@react-types/shared";
 import {
   Modal,
@@ -29,9 +29,13 @@ export default function AddWarantyModal({
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [name, setName] = useState("");
-  const [sku, setSku] = useState();
+  const [sku, setSku] = useState("");
   const [phone, setPhone] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
+  const [isNameValid, setIsNameValid] = useState(true);
+  const [isSkuValid, setIsSkuValid] = useState(true);
+  const [isPhoneValid, setIsPhoneValid] = useState(true);
+  const [isSerialNumberValid, setIsSerialNumberValid] = useState(true);
   const [owner, setOwner] = useState(currentUser);
   const [loading, setLoading] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(
@@ -42,6 +46,25 @@ export default function AddWarantyModal({
     () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
     [selectedKeys]
   );
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset input fields
+      setName("");
+      setSku("");
+      setPhone("");
+      setSerialNumber("");
+
+      // Reset validation states
+      setIsNameValid(true);
+      setIsSkuValid(true);
+      setIsPhoneValid(true);
+      setIsSerialNumberValid(true);
+
+      // Reset owner to currentUser
+      setOwner(currentUser);
+    }
+  }, [isOpen, currentUser]);
 
   const handleSearch = (SKU: Key) => {
     if (!SKU) return;
@@ -68,7 +91,25 @@ export default function AddWarantyModal({
     setOwner(currentUser);
   };
 
+  const validateFields = () => {
+    const validName = name.trim() !== "";
+    const validSku = sku.trim() !== "";
+    const validPhone = phone.trim() !== "";
+    const validSerialNumber = serialNumber.trim() !== "";
+
+    setIsNameValid(validName);
+    setIsSkuValid(validSku);
+    setIsPhoneValid(validPhone);
+    setIsSerialNumberValid(validSerialNumber);
+
+    return validName && validSku && validPhone && validSerialNumber;
+  };
+
   const handleAdd = async (onClose: { (): void; (): void }) => {
+    if (!validateFields()) {
+      setLoading(false);
+      return; // stop the submission process
+    }
     setLoading(true);
     handleOwner();
     try {
@@ -83,8 +124,8 @@ export default function AddWarantyModal({
         );
       } else {
         expiryDate = new Date(
-          currentDate.getFullYear() + 1,
-          currentDate.getMonth(),
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 6,
           currentDate.getDate()
         );
       }
@@ -131,6 +172,9 @@ export default function AddWarantyModal({
                 </ModalHeader>
                 <ModalBody>
                   <SearchBar items={products} handleSearch={handleSearch} />
+                  {(!isNameValid || !isSkuValid) && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                   <Input
                     required
                     isRequired
@@ -139,6 +183,9 @@ export default function AddWarantyModal({
                     variant="bordered"
                     onChange={handlePhone}
                   />
+                  {!isPhoneValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                   <Input
                     required
                     isRequired
@@ -146,6 +193,11 @@ export default function AddWarantyModal({
                     variant="bordered"
                     onChange={handleSerialNumber}
                   />
+                  {!isSerialNumberValid && (
+                    <div className="text-xs text-red-600">
+                      Այս դաշտը պարտադիր է
+                    </div>
+                  )}
                   <Dropdown>
                     <DropdownTrigger>
                       <Button variant="bordered" className="capitalize">
@@ -166,12 +218,6 @@ export default function AddWarantyModal({
                         key="6 Ամիս"
                       >
                         6 Ամիս
-                      </DropdownItem>
-                      <DropdownItem
-                        className="w-[364px] text-center"
-                        key="12 Ամիս"
-                      >
-                        12 Ամիս
                       </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
