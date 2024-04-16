@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -22,7 +22,23 @@ export default function AddUserModal({
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [isNameValid, setIsNameValid] = useState(true);
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset input fields
+      setName("");
+      setUsername("");
+
+      // Reset validation states
+      setIsNameValid(true);
+      setIsUsernameValid(true);
+      setIsPasswordValid(true);
+    }
+  }, [isOpen]);
 
   const handleUsername = (e: {
     target: { value: React.SetStateAction<string> };
@@ -42,7 +58,23 @@ export default function AddUserModal({
     setPassword(e.target.value);
   };
 
+  const validateFields = () => {
+    const validName = name.trim() !== "";
+    const validUsername = username.trim() !== "";
+    const validPassword = password.trim() !== "";
+
+    setIsNameValid(validName);
+    setIsUsernameValid(validUsername);
+    setIsPasswordValid(validPassword);
+
+    return validName && validUsername && validPassword;
+  };
+
   const handleAdd = async (onClose: { (): void; (): void }) => {
+    if (!validateFields()) {
+      setLoading(false);
+      return; // stop the submission process
+    }
     setLoading(true);
     try {
       await fetch("/api/users", {
@@ -87,6 +119,9 @@ export default function AddUserModal({
                     variant="bordered"
                     onChange={handleName}
                   />
+                  {!isNameValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                   <Input
                     required
                     isRequired
@@ -95,7 +130,13 @@ export default function AddUserModal({
                     variant="bordered"
                     onChange={handleUsername}
                   />
+                  {!isUsernameValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                   <PasswordInput handlePassword={handlePassword} />
+                  {!isPasswordValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                 </ModalBody>
                 <ModalFooter>
                   <Button

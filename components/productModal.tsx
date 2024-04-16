@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -16,7 +16,21 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
+  const [isNameValid, setIsNameValid] = useState(true);
+  const [isSkuValid, setIsSkuValid] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset input fields
+      setName("");
+      setSku("");
+
+      // Reset validation states
+      setIsNameValid(true);
+      setIsSkuValid(true);
+    }
+  }, [isOpen]);
 
   const handleName = (e: {
     target: { value: React.SetStateAction<string> };
@@ -30,7 +44,21 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
     setSku(e.target.value);
   };
 
+  const validateFields = () => {
+    const validName = name.trim() !== "";
+    const validSku = sku.trim() !== "";
+
+    setIsNameValid(validName);
+    setIsSkuValid(validSku);
+
+    return validName && validSku;
+  };
+
   const handleAdd = async (onClose: { (): void; (): void }) => {
+    if (!validateFields()) {
+      setLoading(false);
+      return; // stop the submission process
+    }
     setLoading(true);
     try {
       await fetch("/api/products", {
@@ -62,7 +90,7 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
             <form>
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  Ավելացնել Երաշխիք
+                  Ավելացնել ապրանք
                 </ModalHeader>
                 <ModalBody>
                   <Input
@@ -73,6 +101,9 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
                     variant="bordered"
                     onChange={handleName}
                   />
+                  {!isNameValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                   <Input
                     required
                     isRequired
@@ -81,6 +112,9 @@ export default function AddProductModal({ refreshData }: { refreshData: any }) {
                     variant="bordered"
                     onChange={handleSku}
                   />
+                  {!isSkuValid && (
+                    <p className="text-xs text-red-600">Այս դաշտը պարտադիր է</p>
+                  )}
                 </ModalBody>
                 <ModalFooter>
                   <Button
