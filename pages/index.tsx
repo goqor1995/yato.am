@@ -173,8 +173,17 @@ export default function Products() {
       name: "Ապրանքի անուն",
       selector: (row: { Name: any }) => row.Name,
       // sortable: true,
-      width: "40%",
+      width: "30%",
     },
+
+    {
+      name: "Օգտանուն",
+      selector: (row: { owner: { name: string } | null }) =>
+        row.owner ? row.owner.name : "N/A",
+      width: "20%",
+      omit: !isAdmin,
+    },
+
     {
       name: "Արտիկուլ",
       selector: (row: { SKU: any }) => row.SKU,
