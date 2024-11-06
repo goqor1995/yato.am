@@ -180,7 +180,7 @@ export default function Products() {
       name: "Օգտանուն",
       selector: (row: { owner: { name: string } | null }) =>
         row.owner ? row.owner.name : "N/A",
-      width: "20%",
+      width: "15%",
       omit: !isAdmin,
     },
 
