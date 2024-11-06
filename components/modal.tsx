@@ -165,7 +165,14 @@ export default function AddWarantyModal({
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
           {(onClose) => (
-            <form>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (validateFields()) {
+                  handleAdd(onClose);
+                }
+              }}
+            >
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   Ավելացնել Երաշխիք
@@ -232,11 +239,7 @@ export default function AddWarantyModal({
                   >
                     Փակել
                   </Button>
-                  <Button
-                    color="primary"
-                    type="submit"
-                    onPress={() => handleAdd(onClose)}
-                  >
+                  <Button color="primary" type="submit">
                     Ավելացնել
                   </Button>
                 </ModalFooter>
